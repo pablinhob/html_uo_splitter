@@ -1,0 +1,25 @@
+{
+  "name": "html_uo_splitter",
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "node",
+  // Mantiene el CMD del contenedor (entrypoint.sh -> Vite)
+  "overrideCommand": false,
+  // Al cerrar VS Code el contenedor sigue corriendo (se para con ./com.down.sh)
+  "shutdownAction": "none",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "editorconfig.editorconfig"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+      }
+    }
+  }
+}

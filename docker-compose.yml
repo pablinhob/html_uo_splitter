@@ -1,0 +1,27 @@
+name: html_uo_splitter
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    image: html_uo_splitter-dev
+    container_name: html_uo_splitter
+    init: true
+    tty: true
+    stdin_open: true
+    ports:
+      - "5555:5555"
+    environment:
+      - CLAUDE_CONFIG_DIR=/home/node/.claude
+      - VITE_USE_POLLING=true
+    volumes:
+      - .:/workspace:cached
+      # node_modules dentro del contenedor (Linux), no en el host macOS
+      - node_modules:/workspace/node_modules
+      # Login y configuración de Claude Code persistentes entre reinicios
+      - claude-config:/home/node/.claude
+
+volumes:
+  node_modules:
+  claude-config:
