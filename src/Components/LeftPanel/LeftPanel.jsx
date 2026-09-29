@@ -1,5 +1,6 @@
 import Accordion from '../Misc/Accordion';
 import ActionBar from './ActionBar/ActionBar';
+import DonationBanner from './DonationBanner/DonationBanner';
 import ObjectStatsPanel from './ObjectStatsPanel';
 import PiecesPanel from './PiecesPanel/PiecesPanel';
 import PlugsSetupPanel from './PlugsSetupPanel/PlugsSetupPanel';
@@ -7,7 +8,8 @@ import SplitterParametrizationPanel from './SplitterParametrizationPanel';
 
 /**
  * Panel izquierdo: acciones, fichero cargado, los tres pasos en acordeón
- * exclusivo (solo uno abierto a la vez) e información del objeto.
+ * exclusivo (solo uno abierto a la vez), información del objeto y el banner de
+ * donaciones.
  * El estado vive en App; aquí solo se presenta.
  *
  * - file:   { fileName, stats, onOpenSTL }
@@ -16,9 +18,9 @@ import SplitterParametrizationPanel from './SplitterParametrizationPanel';
  * - split:  { value, onChange, onExecute }
  * - pieces: props de PiecesPanel
  */
-export default function LeftPanel({ file, steps, plugs, split, pieces }) {
-  const { expanded, onExpandedChange } = steps;
-  const sections = [
+// Los tres pasos del acordeón, en orden.
+function stepSections({ steps, plugs, split, pieces }) {
+  return [
     {
       id: 'plugs',
       title: '1 - Plugs setup',
@@ -27,7 +29,7 @@ export default function LeftPanel({ file, steps, plugs, split, pieces }) {
         <PlugsSetupPanel
           value={plugs.value}
           onChange={plugs.onChange}
-          onContinue={() => onExpandedChange('split')}
+          onContinue={() => steps.onExpandedChange('split')}
         />
       ),
     },
@@ -44,6 +46,11 @@ export default function LeftPanel({ file, steps, plugs, split, pieces }) {
       content: <PiecesPanel pieces={pieces} />,
     },
   ];
+}
+
+export default function LeftPanel({ file, steps, plugs, split, pieces }) {
+  const { expanded, onExpandedChange } = steps;
+  const sections = stepSections({ steps, plugs, split, pieces });
 
   return (
     <aside className="left-panel">
@@ -64,6 +71,7 @@ export default function LeftPanel({ file, steps, plugs, split, pieces }) {
       ))}
       <div className="spacer" />
       <ObjectStatsPanel stats={file.stats} />
+      <DonationBanner />
     </aside>
   );
 }

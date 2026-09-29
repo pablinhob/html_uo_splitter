@@ -58,6 +58,18 @@ Las dependencias de cada paso se piden antes de instalarlas, según CLAUDE.md.
     por software con la vista isométrica y los colores del visor, porque en el
     contenedor no hay navegador para hacer capturas.
   - Un test comprueba que cada ejemplo tiene su STL y su preview del tamaño correcto.
+- **Banner de donaciones** (tras el paso 8), al pie del panel izquierdo
+  (`LeftPanel/DonationBanner/`).
+  - Pixel art de 110 × 32 píxeles en SVG, escalado sin suavizar. Tiene un sol con gafas
+    de sol, una gaviota, tres capas de olas con espuma, un surfista haciendo
+    equilibrios en su tabla y una aleta de tiburón que le sigue.
+  - Las animaciones van a saltos de un píxel (`steps()`) y son lentas. Con
+    `prefers-reduced-motion` no hay animación.
+  - Los sprites y la posición de cada elemento están en `Helpers/donationScene.js`, y
+    los colores en `config.js`. `Helpers/pixelArt.js` los convierte en rectángulos
+    (probado en `pixelArt.test.js`).
+  - El botón "CHIP IN FOR WAX" enlaza a `DONATION_URL` (`config.js`).
+- **Consola de log** a la mitad de alto (75 px).
 
 ---
 

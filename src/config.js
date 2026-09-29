@@ -130,6 +130,36 @@ export const EXAMPLE_MODELS = [
 // Previews de los ejemplos: PNG cuadrado de este lado (px).
 export const EXAMPLE_PREVIEW_SIZE_PX = 256;
 
+// Banner de donaciones al pie del panel izquierdo.
+// TODO: poner el enlace real de la página de donaciones.
+export const DONATION_URL = '';
+
+// Colores del pixel art del banner. Cada letra es un píxel en los sprites de
+// Helpers/donationScene.js.
+export const DONATION_SPRITE_PALETTE = {
+  W: '#fff8e7', // tabla
+  R: '#ff3d7f', // canto de la tabla
+  F: '#1d1d3b', // quillas
+  H: '#ffe03d', // pelo
+  S: '#f4a261', // piel
+  K: '#111111', // gafas de sol
+  L: '#ffffff', // brillo de las gafas
+  T: '#8338ec', // camiseta
+  B: '#06d6a0', // bañador
+  Y: '#ffd23f', // sol
+  O: '#f77f00', // mejillas y sonrisa del sol
+  G: '#5c677d', // aleta del tiburón
+  D: '#2b2d42', // gaviota
+};
+
+export const DONATION_SCENE_COLORS = {
+  sky: ['#2f6fdf', '#4b93f2', '#7cbcff', '#bfe3ff'],
+  waveBack: '#35d0e0',
+  waveMiddle: '#1497d6',
+  waveFront: '#0a5aa8',
+  foam: '#ffffff',
+};
+
 // --- Plugs (plug_subtraction_geometries.py / plug_position.py) ---------------
 
 // Holgura añadida alrededor de cada cavidad para el inserto y el pegamento.

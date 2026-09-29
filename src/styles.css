@@ -373,7 +373,7 @@ p {
 }
 
 .log-console {
-  flex: 0 0 150px;
+  flex: 0 0 75px;
   margin: 0;
   padding: 6px 8px;
   overflow-y: auto;
@@ -383,6 +383,152 @@ p {
   font-family: Menlo, monospace;
   font-size: 12px;
   white-space: pre-wrap;
+}
+
+/* ------------------------------------------------------------ Donaciones */
+
+/* Pixel art: el SVG se escala sin suavizar y todo se mueve a saltos de un píxel. */
+.donation-banner {
+  position: relative;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 3px solid #1d1d3b;
+  border-radius: 0;
+  box-shadow: 4px 4px 0 #1d1d3b;
+  margin: 0 4px 4px 0;
+}
+
+.donation-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+/* Las olas avanzan un periodo (wavePeriodPx en Helpers/donationScene.js). */
+.donation-art .wave-back {
+  animation: pixel-wave-drift 16s steps(20) infinite;
+}
+
+.donation-art .wave-middle {
+  animation: pixel-wave-drift 11s steps(20) infinite reverse;
+}
+
+.donation-art .wave-front {
+  animation: pixel-wave-drift 7s steps(20) infinite;
+}
+
+.donation-art .rider {
+  animation: pixel-bob 1.6s steps(1) infinite;
+}
+
+.donation-art .shark {
+  animation: shark-patrol 9s steps(8) infinite alternate;
+}
+
+.donation-art .gull {
+  animation: gull-flight 36s steps(130) infinite;
+}
+
+.donation-art .gull-wings-up {
+  animation: gull-flap 0.8s steps(1) infinite;
+}
+
+.donation-art .gull-wings-down {
+  animation: gull-flap 0.8s steps(1) infinite reverse;
+}
+
+@keyframes pixel-wave-drift {
+  to {
+    transform: translateX(-20px);
+  }
+}
+
+@keyframes pixel-bob {
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes shark-patrol {
+  to {
+    transform: translateX(8px);
+  }
+}
+
+@keyframes gull-flight {
+  to {
+    transform: translateX(-130px);
+  }
+}
+
+@keyframes gull-flap {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .donation-art * {
+    animation: none !important;
+  }
+
+  .donation-art .gull {
+    display: none;
+  }
+}
+
+.donation-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  max-width: 66%;
+  padding: 8px 10px 10px;
+  color: #ffffff;
+  font-family: Menlo, 'Courier New', monospace;
+  text-shadow: 2px 2px 0 #1d1d3b;
+}
+
+.donation-title {
+  font-size: 17px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.donation-text {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.donation-button {
+  margin-top: auto;
+  padding: 6px 16px;
+  border: 3px solid #1d1d3b;
+  background: #ff3d7f;
+  box-shadow: 3px 3px 0 #1d1d3b;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.donation-button:hover {
+  background: #ff5c93;
+}
+
+.donation-button:active {
+  box-shadow: 1px 1px 0 #1d1d3b;
+  transform: translate(2px, 2px);
+}
+
+.donation-button:focus-visible {
+  outline: 3px solid #ffd23f;
+  outline-offset: 1px;
 }
 
 /* ------------------------------------------------------------ Export */
