@@ -15,5 +15,5 @@ export default function Accordion({ title, expanded, enabled, onToggle, children
       </button>
       {expanded && <div className="accordion-body">{children}</div>}
     </section>
-  )
+  );
 }

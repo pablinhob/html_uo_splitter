@@ -1,25 +1,20 @@
-import { useEffect, useRef, useState } from 'react'
-import Viewer from './Misc/Viewer'
-
-// Formatos en orden de aparición; OBJ primero para que sea el de por defecto.
-export const EXPORT_FORMATS = [
-  { label: 'OBJ', fileType: 'obj', suffix: '.obj', colors: true },
-  { label: '3MF', fileType: '3mf', suffix: '.3mf', colors: false },
-]
+import { useEffect, useRef, useState } from 'react';
+import { EXPORT_FORMATS } from '../config';
+import Viewer from './Misc/Viewer';
 
 /**
  * Ventana "Export hollowing" (export_window.py) como diálogo modal.
  * status/objects/ready los gestiona el llamante; onExport recibe el formato.
  */
 export default function ExportDialog({ open, status, objects, ready, onExport, onClose }) {
-  const dialogRef = useRef(null)
-  const [formatIndex, setFormatIndex] = useState(0)
+  const dialogRef = useRef(null);
+  const [formatIndex, setFormatIndex] = useState(0);
 
   useEffect(() => {
-    const dialog = dialogRef.current
-    if (open && !dialog.open) dialog.showModal()
-    if (!open && dialog.open) dialog.close()
-  }, [open])
+    const dialog = dialogRef.current;
+    if (open && !dialog.open) dialog.showModal();
+    if (!open && dialog.open) dialog.close();
+  }, [open]);
 
   return (
     <dialog className="export-dialog" ref={dialogRef} onClose={onClose}>
@@ -43,10 +38,14 @@ export default function ExportDialog({ open, status, objects, ready, onExport, o
             </option>
           ))}
         </select>
-        <button type="button" disabled={!ready} onClick={() => onExport(EXPORT_FORMATS[formatIndex])}>
+        <button
+          type="button"
+          disabled={!ready}
+          onClick={() => onExport(EXPORT_FORMATS[formatIndex])}
+        >
           Export file
         </button>
       </footer>
     </dialog>
-  )
+  );
 }

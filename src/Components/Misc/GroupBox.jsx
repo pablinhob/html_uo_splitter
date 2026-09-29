@@ -4,5 +4,5 @@ export default function GroupBox({ title, children }) {
       <legend>{title}</legend>
       {children}
     </fieldset>
-  )
+  );
 }

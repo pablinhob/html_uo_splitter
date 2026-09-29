@@ -1,4 +1,4 @@
-import { keyId } from '../../../Helpers/pieces'
+import { keyId } from '../../../Helpers/pieces';
 
 // Lista recursiva del árbol de piezas (sustituye al QTreeWidget).
 export default function PiecesTree({ nodes, selected, onSelect }) {
@@ -13,9 +13,11 @@ export default function PiecesTree({ nodes, selected, onSelect }) {
           >
             {node.label}
           </button>
-          {node.children.length > 0 && <PiecesTree nodes={node.children} selected={selected} onSelect={onSelect} />}
+          {node.children.length > 0 && (
+            <PiecesTree nodes={node.children} selected={selected} onSelect={onSelect} />
+          )}
         </li>
       ))}
     </ul>
-  )
+  );
 }

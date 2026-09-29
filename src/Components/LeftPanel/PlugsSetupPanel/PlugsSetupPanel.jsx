@@ -1,5 +1,5 @@
-import FinPlugPanel from './FinPlugPanel'
-import LeashPlugPanel from './LeashPlugPanel'
+import FinPlugPanel from './FinPlugPanel/FinPlugPanel';
+import LeashPlugPanel from './LeashPlugPanel';
 
 export default function PlugsSetupPanel({ value, onChange, onContinue }) {
   return (
@@ -10,5 +10,5 @@ export default function PlugsSetupPanel({ value, onChange, onContinue }) {
         Continue
       </button>
     </div>
-  )
+  );
 }

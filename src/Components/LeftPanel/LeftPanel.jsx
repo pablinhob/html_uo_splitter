@@ -1,77 +1,69 @@
-import Accordion from '../Misc/Accordion'
-import ActionBar from './ActionBar/ActionBar'
-import ObjectStatsPanel from './ObjectStatsPanel'
-import PiecesPanel from './PiecesPanel/PiecesPanel'
-import PlugsSetupPanel from './PlugsSetupPanel/PlugsSetupPanel'
-import SplitterParametrizationPanel from './SplitterParametrizationPanel'
+import Accordion from '../Misc/Accordion';
+import ActionBar from './ActionBar/ActionBar';
+import ObjectStatsPanel from './ObjectStatsPanel';
+import PiecesPanel from './PiecesPanel/PiecesPanel';
+import PlugsSetupPanel from './PlugsSetupPanel/PlugsSetupPanel';
+import SplitterParametrizationPanel from './SplitterParametrizationPanel';
 
 /**
  * Panel izquierdo: acciones, fichero cargado, los tres pasos en acordeón
  * exclusivo (solo uno abierto a la vez) e información del objeto.
  * El estado vive en App; aquí solo se presenta.
+ *
+ * - file:   { fileName, stats, onOpenSTL }
+ * - steps:  { expanded, onExpandedChange, hasMesh, hasPieces, isBusy }
+ * - plugs:  { value, onChange }
+ * - split:  { value, onChange, onExecute }
+ * - pieces: props de PiecesPanel
  */
-export default function LeftPanel({
-  fileName,
-  hasMesh,
-  hasPieces,
-  stats,
-  busy,
-  expanded,
-  onExpandedChange,
-  onOpenStl,
-  plugs,
-  onPlugsChange,
-  split,
-  onSplitChange,
-  onExecute,
-  piecesPanelProps,
-}) {
-  const toggle = (section) => onExpandedChange(expanded === section ? null : section)
+export default function LeftPanel({ file, steps, plugs, split, pieces }) {
+  const { expanded, onExpandedChange } = steps;
+  const sections = [
+    {
+      id: 'plugs',
+      title: '1 - Plugs setup',
+      enabled: steps.hasMesh,
+      content: (
+        <PlugsSetupPanel
+          value={plugs.value}
+          onChange={plugs.onChange}
+          onContinue={() => onExpandedChange('split')}
+        />
+      ),
+    },
+    {
+      id: 'split',
+      title: '2 - Split model into polygons',
+      enabled: steps.hasMesh,
+      content: <SplitterParametrizationPanel split={split} busy={steps.isBusy} />,
+    },
+    {
+      id: 'pieces',
+      title: '3 - Process polygons',
+      enabled: steps.hasPieces,
+      content: <PiecesPanel pieces={pieces} />,
+    },
+  ];
 
   return (
     <aside className="left-panel">
-      <ActionBar onOpenStl={onOpenStl} />
-
-      <p className="file-path" title={fileName ?? undefined}>
-        {fileName ?? 'No file selected'}
+      <ActionBar onOpenSTL={file.onOpenSTL} />
+      <p className="file-path" title={file.fileName ?? undefined}>
+        {file.fileName ?? 'No file selected'}
       </p>
-
-      <Accordion
-        title="1 - Plugs setup"
-        enabled={hasMesh}
-        expanded={expanded === 'plugs'}
-        onToggle={() => toggle('plugs')}
-      >
-        <PlugsSetupPanel
-          value={plugs}
-          onChange={onPlugsChange}
-          onContinue={() => onExpandedChange('split')}
-        />
-      </Accordion>
-      <Accordion
-        title="2 - Split model into polygons"
-        enabled={hasMesh}
-        expanded={expanded === 'split'}
-        onToggle={() => toggle('split')}
-      >
-        <SplitterParametrizationPanel
-          value={split}
-          onChange={onSplitChange}
-          onExecute={onExecute}
-          busy={busy}
-        />
-      </Accordion>
-      <Accordion
-        title="3 - Process polygons"
-        enabled={hasPieces}
-        expanded={expanded === 'pieces'}
-        onToggle={() => toggle('pieces')}
-      >
-        <PiecesPanel {...piecesPanelProps} />
-      </Accordion>
-
+      {sections.map((section) => (
+        <Accordion
+          key={section.id}
+          title={section.title}
+          enabled={section.enabled}
+          expanded={expanded === section.id}
+          onToggle={() => onExpandedChange(expanded === section.id ? null : section.id)}
+        >
+          {section.content}
+        </Accordion>
+      ))}
       <div className="spacer" />
-      <ObjectStatsPanel stats={stats} />
+      <ObjectStatsPanel stats={file.stats} />
     </aside>
-  )
+  );
 }

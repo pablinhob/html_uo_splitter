@@ -1,0 +1,9 @@
+_legacy/
+dist/
+node_modules/
+package-lock.json
+
+# Configuración del entorno (no es código del proyecto)
+.vscode/
+.devcontainer/
+docker-compose.yml

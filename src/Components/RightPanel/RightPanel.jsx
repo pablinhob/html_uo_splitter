@@ -1,5 +1,5 @@
-import Viewer from '../Misc/Viewer'
-import LogConsole from './LogConsole'
+import Viewer from '../Misc/Viewer';
+import LogConsole from './LogConsole';
 
 export default function RightPanel({ viewerObjects }) {
   return (
@@ -7,5 +7,5 @@ export default function RightPanel({ viewerObjects }) {
       <Viewer objects={viewerObjects} />
       <LogConsole />
     </main>
-  )
+  );
 }

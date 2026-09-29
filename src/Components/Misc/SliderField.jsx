@@ -8,7 +8,7 @@ export default function SliderField({
   decimals = 0,
   disabled,
 }) {
-  const step = 10 ** -decimals
+  const step = 10 ** -decimals;
   return (
     <div className={`slider-field${disabled ? ' disabled' : ''}`}>
       <span>
@@ -25,5 +25,5 @@ export default function SliderField({
         onChange={(event) => onChange(Number(Number(event.target.value).toFixed(decimals)))}
       />
     </div>
-  )
+  );
 }
