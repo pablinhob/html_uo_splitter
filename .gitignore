@@ -1,0 +1,37 @@
+# Dependencias
+node_modules/
+
+# Build
+dist/
+dist-ssr/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Variables de entorno / secretos
+.env
+.env.*
+!.env.example
+*.local
+
+# Cachés de herramientas
+.eslintcache
+.vite/
+coverage/
+
+# Editores / IDE (se versiona la conf compartida de VS Code)
+.idea/
+*.sw?
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Proyecto Python original (solo referencia para la migración)
+_legacy/
