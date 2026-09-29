@@ -11,7 +11,7 @@ Las normas de [CLAUDE.md](CLAUDE.md) aplican a todos los pasos.
 | 0   | Interfaz y estructura de carpetas                                | ✅ Hecho                      |
 | 1   | Base de calidad: linter, formato, tests y adaptación del código  | ✅ Hecho                      |
 | 2   | Motor geométrico: manifold-3d, Web Worker y reparación de mallas | ⏳ Falta la referencia Python |
-| 3   | Ejes de la tabla y lectura de superficie                         | Pendiente                     |
+| 3   | Ejes de la tabla y lectura de superficie                         | ⏳ Falta la referencia Python |
 | 4   | Plugs: cavidades, soportes y marcadores                          | Pendiente                     |
 | 5   | Split: stringer, cutlap y rejilla de polígonos                   | Pendiente                     |
 | 6   | Vaciado de piezas y previsualización                             | Pendiente                     |
@@ -44,6 +44,20 @@ Las dependencias de cada paso se piden antes de instalarlas, según CLAUDE.md.
 - **Resultados de referencia.** El venv de `_legacy/` es de macOS y no funciona en
   el contenedor. Hay que preparar un entorno Python aparte para generar los datos
   con los que comparar los tests (paso 2).
+
+## Añadidos fuera del plan
+
+- **Modelos de ejemplo** (entre los pasos 3 y 4). Mientras no hay tabla cargada, el
+  visor muestra "Open example" con un botón por modelo: su preview y su nombre
+  (Cobra y Mini Simmons).
+  - Cada botón descarga el STL de `public/examples/` por HTTP del propio proyecto y lo
+    carga como un fichero propio. Es para quien quiere probar la app sin tener un STL.
+  - El aviso desaparece al cargar cualquier tabla.
+  - Los ejemplos se definen en `EXAMPLE_MODELS` (`config.js`).
+  - Los previews (PNG de 256 × 256) se generan con `npm run previews`: un renderizador
+    por software con la vista isométrica y los colores del visor, porque en el
+    contenedor no hay navegador para hacer capturas.
+  - Un test comprueba que cada ejemplo tiene su STL y su preview del tamaño correcto.
 
 ---
 
@@ -128,15 +142,39 @@ las cumpla antes de portar lógica.
 **Terminado cuando:** los tres modelos se cargan y quedan cerrados, y existen los
 datos de referencia.
 
-## Paso 3 · Ejes y superficie
+## Paso 3 · Ejes y superficie ⏳
 
 **Portar de `mesh_ops.py`:** `_detect_axes`, `board_axes`, `detect_thickness_axis`,
 `surface_height`, `_surface_hit` y `surface_frame`.
 
-- Añadir `three-mesh-bvh` (rayos verticales, equivalente a `trimesh.ray`).
+**Hecho:**
+
+- `three-mesh-bvh` instalado (rayos contra la malla, equivalente a `trimesh.ray`).
+- `Helpers/boardAxes.js`: `meshBounds` y `detectAxes`, que devuelve
+  `{ lengthAxis, widthAxis, thicknessAxis }`. Los empates se resuelven como
+  `np.argmax` / `np.argmin`: gana el primer eje.
+- `Helpers/surface.js`:
+  - `createSurfaceProbe(meshData)` crea la BVH y lanza rayos verticales que
+    devuelven todos los cortes.
+  - `surfaceHeight`, `surfaceHit` y `surfaceFrame` replican la lógica de Python,
+    incluidos los casos límite: fuera de la tabla, extremos de la cruz que no tocan
+    y normal degenerada.
+- El servicio del Worker guarda la sonda de superficie junto al `Manifold` de la
+  tabla, lista para colocar los plugs en el paso 4. Trabaja sobre su propia copia de
+  la malla, porque la `meshData` se transfiere a la interfaz.
+- Tests con geometría de resultado exacto (caja plana y caja con la cara superior
+  inclinada, que simula el rocker) y comprobaciones básicas sobre los tres modelos.
+  En total, 63 tests: 51 en verde y 12 que comparan con Python, saltados hasta que
+  exista el JSON (3 del paso 2 y 9 de este).
+- `tools/reference/generate_reference.py`: sección `surface`, con los ejes, 15 alturas
+  y 16 marcos por modelo en puntos derivados del bounding box. El JSON guarda los
+  puntos, así que el test de JS usa exactamente los mismos.
+
+**Pendiente para cerrarlo:** generar las referencias en el Mac (el mismo comando del
+paso 2, que ya incluye esta sección) y pasar `npm test`.
 
 **Terminado cuando:** los tests coinciden con Python (ejes, alturas y normales, con
-tolerancias explícitas).
+tolerancias explícitas: 0,05 mm y 0,5°).
 
 ## Paso 4 · Plugs
 

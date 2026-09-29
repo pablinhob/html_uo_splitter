@@ -26,6 +26,21 @@ describe('createGeometryService', () => {
 
     service.dispose();
     expect(service.hasBoard()).toBe(false);
+    expect(service.surfaceProbe()).toBeNull();
+  });
+
+  it('prepara la sonda de superficie con su propia copia de la malla', () => {
+    const service = createGeometryService(wasm);
+    const buffer = textBuffer(boxSTL({ x: 30, y: 20, z: 10 }));
+    const { result } = service.handle('loadBoard', { buffer }, () => {});
+
+    // Simula la transferencia: la interfaz se queda con meshData y el Worker lo pierde.
+    structuredClone(result.meshData, { transfer: [result.meshData.positions.buffer] });
+
+    const probe = service.surfaceProbe();
+    expect(probe.axes).toEqual({ lengthAxis: 0, widthAxis: 1, thicknessAxis: 2 });
+    expect(probe.hitsAlongThickness([12, 5, 0])).toHaveLength(2);
+    service.dispose();
   });
 
   it('no guarda una tabla que no se ha podido cerrar', () => {

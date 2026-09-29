@@ -306,6 +306,72 @@ p {
   display: block;
 }
 
+.viewer-area {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Modelos de ejemplo: centrados sobre el visor, sin bloquear el ratón fuera de
+   los botones. Colores fijos porque el fondo del visor siempre es oscuro. */
+.example-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: #e8e8ea;
+  pointer-events: none;
+}
+
+.example-overlay h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.example-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+
+.example-button {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px 10px;
+  border: 1px solid #444448;
+  border-radius: 8px;
+  background: #262628;
+  color: #e8e8ea;
+  font-weight: 600;
+}
+
+.example-button:hover:not(:disabled) {
+  border-color: #4a90f0;
+  background: #2e2e31;
+}
+
+.example-button:focus-visible {
+  outline: 2px solid #4a90f0;
+  outline-offset: 2px;
+}
+
+.example-button img {
+  display: block;
+  width: 128px;
+  height: 128px;
+  border-radius: 4px;
+}
+
 .log-console {
   flex: 0 0 150px;
   margin: 0;

@@ -261,6 +261,11 @@ export default [
     },
   },
   {
+    // Herramientas y utilidades de tests: se ejecutan en Node, no en el navegador.
+    files: ['tools/**/*.js', 'tests/**/*.js'],
+    languageOptions: { globals: { ...globals.node } },
+  },
+  {
     files: ['**/*.test.js'],
     rules: { 'max-lines-per-function': 'off' },
   },

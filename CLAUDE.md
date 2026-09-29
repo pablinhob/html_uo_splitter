@@ -44,6 +44,8 @@ tests/
 ├── fixtures/reference/    # resultados del programa Python (JSON)
 └── support/               # utilidades compartidas por los tests
 tools/reference/           # script Python que genera fixtures/reference/
+tools/previews/            # genera los PNG de preview de los ejemplos (npm run previews)
+public/examples/           # modelos de ejemplo y sus previews (EXAMPLE_MODELS en config.js)
 ```
 
 (Los nombres del ejemplo son ilustrativos.)
@@ -100,6 +102,9 @@ tools/reference/           # script Python que genera fixtures/reference/
     no admiten la 10.
   - Un hook de Claude Code (`.claude/hooks/format-and-lint.sh`) pasa Prettier y
     `eslint --fix` a cada `.js`/`.jsx` editado y devuelve los problemas que queden.
+- **Scripts de Node en `tools/`:** se lanzan con
+  `node --import ./tools/extensionlessImports.js`, que resuelve los imports sin
+  extensión igual que Vite. Así pueden reutilizar el código de `src/`.
 - **Comandos:** `npm run lint`, `npm run format`, `npm test`. Antes de dar un paso por
   terminado, los tres pasan limpios y `npm run build` compila.
 - **Sin dependencias nuevas sin preguntar antes.** Explica para qué se necesita y

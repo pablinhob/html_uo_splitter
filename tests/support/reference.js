@@ -15,4 +15,8 @@ export function readReference(modelName) {
 export const REFERENCE_TOLERANCE = {
   sizeMm: 0.01,
   volumeRelative: 1e-3,
+  // Alturas y puntos de contacto leídos con rayos (surface_height / surface_frame).
+  heightMm: 0.05,
+  // Ángulo máximo entre la normal de JS y la de Python (0,5°).
+  normalAngleRad: (0.5 * Math.PI) / 180,
 };

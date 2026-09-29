@@ -110,3 +110,24 @@ export const EXPORT_FORMATS = [
 // Reparación de mallas no cerradas: distancia máxima (mm) a la que se fusionan
 // vértices de aristas abiertas si la tolerancia por defecto de manifold no basta.
 export const MESH_REPAIR_TOLERANCE_MM = 0.01;
+
+// Modelos de ejemplo para probar la app sin un STL propio. Viven en public/, así
+// que se descargan por HTTP del propio proyecto (rutas relativas a la base de Vite).
+// Los previews se generan con `npm run previews` (tools/previews/renderPreviews.js).
+export const EXAMPLE_MODELS = [
+  {
+    label: 'Cobra',
+    fileName: 'Cobra.stl',
+    path: 'examples/Cobra.stl',
+    previewPath: 'examples/CobraPreview.png',
+  },
+  {
+    label: 'Mini Simmons',
+    fileName: 'MiniSimmons.stl',
+    path: 'examples/MiniSimmons.stl',
+    previewPath: 'examples/MiniSimmonsPreview.png',
+  },
+];
+
+// Previews de los ejemplos: PNG cuadrado de este lado (px).
+export const EXAMPLE_PREVIEW_SIZE_PX = 256;

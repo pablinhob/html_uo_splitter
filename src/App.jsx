@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { DEFAULT_PLUGS, DEFAULT_SPLIT, NOT_MIGRATED_MESSAGE } from './config';
 import logger from './Helpers/logger';
 import useBoardFile from './Hooks/useBoardFile';
+import useBoardOpening from './Hooks/useBoardOpening';
 import useGeometryWorker from './Hooks/useGeometryWorker';
 import useExportDialog from './Hooks/useExportDialog';
 import usePiecesWorkflow from './Hooks/usePiecesWorkflow';
@@ -22,23 +23,18 @@ export default function App() {
   const [expanded, setExpanded] = useState(null);
   const viewerObjects = useViewerObjects(board.mesh, workflow.pieces, workflow.selectedPiece);
 
-  const onOpenSTL = async (event) => {
-    const [file] = event.target.files;
-    event.target.value = '';
-    if (!file) {
-      logger.info('STL loading cancelled');
-      return;
-    }
-    workflow.reset();
-    setExpanded(null);
-    const isLoaded = await board.openSTL(file);
-    if (isLoaded) setExpanded('plugs');
-  };
+  const opening = useBoardOpening(board, {
+    onStart: () => {
+      workflow.reset();
+      setExpanded(null);
+    },
+    onLoaded: () => setExpanded('plugs'),
+  });
 
   return (
     <div className={`app${board.isBusy ? ' busy' : ''}`}>
       <LeftPanel
-        file={{ fileName: board.fileName, stats: board.stats, onOpenSTL }}
+        file={{ fileName: board.fileName, stats: board.stats, onOpenSTL: opening.onFileInput }}
         steps={{
           expanded,
           onExpandedChange: setExpanded,
@@ -50,7 +46,13 @@ export default function App() {
         split={{ value: split, onChange: setSplit, onExecute: () => workflow.split(split) }}
         pieces={{ ...workflow.panel, onExport: exportDialog.open }}
       />
-      <RightPanel viewerObjects={viewerObjects} />
+      <RightPanel
+        viewerObjects={viewerObjects}
+        example={{
+          isVisible: !board.mesh && !board.isBusy,
+          onOpen: opening.openExample,
+        }}
+      />
       <ExportDialog
         open={exportDialog.isOpen}
         status="Processing hollowing for every piece, this may take a while..."

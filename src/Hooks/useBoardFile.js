@@ -22,11 +22,19 @@ function logLoaded({ meshData, stats }) {
   );
 }
 
+// Descarga un fichero de public/ (respeta la base de Vite, './').
+async function downloadPublicFile(path) {
+  const response = await fetch(`${import.meta.env.BASE_URL}${path}`);
+  if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+  return response.arrayBuffer();
+}
+
 /**
  * Tabla cargada desde un STL (on_open_stl de main_window.py): la malla para el
  * visor, el nombre del fichero y sus estadísticas. La lectura y la reparación se
  * hacen en el Worker, que se queda con la malla sólida para las booleanas.
- * `openSTL(file)` devuelve true si la carga ha ido bien. Este hook es dueño de
+ * `openSTL(file)` abre un fichero del equipo y `openExample(example)` uno de
+ * EXAMPLE_MODELS; ambas devuelven true si la carga ha ido bien. Este hook es dueño de
  * la geometría del visor: libera la anterior.
  */
 export default function useBoardFile(geometryWorker) {
@@ -40,12 +48,8 @@ export default function useBoardFile(geometryWorker) {
     setMesh(next);
   };
 
-  const openSTL = async (file) => {
-    setFileName(file.name);
-    logger.info(`Loading file: ${file.name}`);
-    setIsBusy(true);
+  const loadBuffer = async (name, buffer) => {
     try {
-      const buffer = await file.arrayBuffer();
       const board = await geometryWorker.request('loadBoard', { buffer }, { transfer: [buffer] });
       logRepair(board.repair);
       replaceMesh(geometryFromMeshData(board.meshData));
@@ -53,14 +57,37 @@ export default function useBoardFile(geometryWorker) {
       logLoaded(board);
       return true;
     } catch (error) {
-      logger.error(`Could not parse STL file '${file.name}': ${error.message}`);
+      logger.error(`Could not parse STL file '${name}': ${error.message}`);
       replaceMesh(null);
       setStats(null);
+      return false;
+    }
+  };
+
+  // readBuffer: () => Promise<ArrayBuffer>. Un fallo al leer no toca la tabla actual.
+  const open = async (name, readBuffer) => {
+    setIsBusy(true);
+    try {
+      const buffer = await readBuffer();
+      setFileName(name);
+      return await loadBuffer(name, buffer);
+    } catch (error) {
+      logger.error(`Could not read '${name}': ${error.message}`);
       return false;
     } finally {
       setIsBusy(false);
     }
   };
 
-  return { mesh, fileName, stats, isBusy, openSTL };
+  const openSTL = (file) => {
+    logger.info(`Loading file: ${file.name}`);
+    return open(file.name, () => file.arrayBuffer());
+  };
+
+  const openExample = ({ fileName, path }) => {
+    logger.info(`Loading example: ${fileName}`);
+    return open(fileName, () => downloadPublicFile(path));
+  };
+
+  return { mesh, fileName, stats, isBusy, openSTL, openExample };
 }

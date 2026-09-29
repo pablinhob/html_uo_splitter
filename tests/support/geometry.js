@@ -47,11 +47,16 @@ const boxFaces = [
  * - omitFace: índice de una cara que se quita (malla abierta, irreparable).
  * - gapMm: desplaza los vértices de la cara superior en x, dejando una grieta
  *   diminuta (malla abierta que Mesh.merge() puede cerrar).
+ * - transform: ([x, y, z]) => [x, y, z] aplicada a cada vértice ya escalado
+ *   (p. ej. para inclinar la cara superior).
  */
-export function boxSTL({ x, y, z }, { omitFace = -1, gapMm = 0 } = {}) {
+export function boxSTL(
+  { x, y, z },
+  { omitFace = -1, gapMm = 0, transform = (point) => point } = {},
+) {
   const vertex = ([cx, cy, cz], faceIndex) => {
     const shift = faceIndex === 1 ? gapMm : 0;
-    return `vertex ${cx * x + shift} ${cy * y} ${cz * z}`;
+    return `vertex ${transform([cx * x + shift, cy * y, cz * z]).join(' ')}`;
   };
   const facet = (points, faceIndex) =>
     [
