@@ -71,11 +71,23 @@ function buildFeatureEdges({ geometry, visible = true }) {
   return edges;
 }
 
-// Mallas (y aristas si se piden) de cada objeto de la lista del visor.
-export const buildObjectMeshes = (objects) =>
-  objects.flatMap((object) =>
-    object.edges ? [buildMesh(object), buildFeatureEdges(object)] : [buildMesh(object)],
+// Contorno de corte: líneas (la geometría es del llamante, como la de las mallas).
+function buildLines({ geometry, visible = true }) {
+  const lines = new THREE.LineSegments(
+    geometry,
+    new THREE.LineBasicMaterial({ color: SPLIT_EDGE_COLOR }),
   );
+  lines.visible = visible;
+  return lines;
+}
+
+// Objetos de three.js de cada entrada: líneas, o malla (y sus aristas si se piden).
+export function buildObjectMeshes(objects) {
+  return objects.flatMap((object) => {
+    if (object.lines) return [buildLines(object)];
+    return object.edges ? [buildMesh(object), buildFeatureEdges(object)] : [buildMesh(object)];
+  });
+}
 
 const geometryBox = (geometry) =>
   new THREE.Box3().setFromBufferAttribute(geometry.getAttribute('position'));

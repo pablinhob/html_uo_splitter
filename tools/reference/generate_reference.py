@@ -5,9 +5,9 @@ los modelos de ``tests/fixtures/models`` y escribe un JSON por modelo en
 ``tests/fixtures/reference``. Los tests de Vitest comparan la versión web con esos
 valores (ver ``tests/support/reference.js``).
 
-Uso (en el Mac, con el venv del proyecto original), desde la raíz del proyecto web:
+Uso, desde la raíz del proyecto web (venv del contenedor, ver requirements.txt):
 
-    _legacy/ulaola_surfboard_splitter/venv/bin/python tools/reference/generate_reference.py
+    tools/reference/.venv/bin/python tools/reference/generate_reference.py
 
 Cada paso de la migración añade aquí su sección (``SECTIONS``); ``--sections``
 permite generar solo algunas.
@@ -28,15 +28,59 @@ OUTPUT_DIR = PROJECT_ROOT / "tests" / "fixtures" / "reference"
 
 sys.path.insert(0, str(LEGACY_ROOT))
 
+
+def _stub_gui_modules():
+    """Sustituye PySide6 y PyVista por esqueletos vacíos, para poder importar
+    app.gui.export_window y usar sus métodos de geometría sin interfaz."""
+    import types
+
+    class _Stub:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def __getattr__(self, name):
+            return _Stub()
+
+        def __call__(self, *args, **kwargs):
+            return _Stub()
+
+    def _module(name):
+        module = types.ModuleType(name)
+        module.__getattr__ = lambda attribute: _Stub
+        sys.modules[name] = module
+        return module
+
+    for name in ("PySide6", "PySide6.QtCore", "PySide6.QtGui", "PySide6.QtWidgets"):
+        _module(name)
+    _module("app.gui.viewer")
+
+
+_stub_gui_modules()
+
 import numpy as np  # noqa: E402
 import trimesh  # noqa: E402
 
+from app import config  # noqa: E402
+from app.core.hollow import hollow_piece  # noqa: E402
+from app.gui.export_window import ExportWindow, _is_hollowable, _piece_name  # noqa: E402
 from app.core.mesh_ops import (  # noqa: E402
     board_axes,
+    detect_thickness_axis,
     compute_object_stats,
     load_stl,
+    split_board,
     surface_frame,
     surface_height,
+)
+from app.core.plug_position import (  # noqa: E402
+    MARKER_PROTRUSION_MM,
+    SUBTRACTION_MARGIN_MM,
+    leash_plug_markers,
+    leash_plug_supports,
+    single_fin_markers,
+    single_fin_supports,
+    twin_fin_markers,
+    twin_fin_supports,
 )
 
 PACKAGES = ["trimesh", "numpy", "pymeshfix", "manifold3d", "shapely"]
@@ -134,9 +178,257 @@ def section_surface(_model_path, mesh):
     return {"axes": [int(axis) for axis in axes], "heights": heights, "frames": frames}
 
 
+def _solid_summary(solid):
+    min_bounds, max_bounds = solid.bounds
+    return {
+        "volume_mm3": float(abs(solid.volume)),
+        "bounds_mm": [min_bounds.tolist(), max_bounds.tolist()],
+        "is_watertight": bool(solid.is_watertight),
+    }
+
+
+def _default_plugs():
+    """Parámetros por defecto de la interfaz (config.py), con los nombres de JS."""
+    return {
+        "leash": {
+            "diameterMm": config.LEASH_PLUG_DIAMETER_DEFAULT_MM,
+            "depthMm": config.LEASH_PLUG_DEPTH_DEFAULT_MM,
+            "tailDistanceMm": config.LEASH_PLUG_TAIL_DISTANCE_DEFAULT_MM,
+            "centerMm": config.LEASH_PLUG_CENTER_DEFAULT_MM,
+        },
+        "fin": {
+            "singleBoxLongMm": config.FIN_SINGLE_BOX_LONG_DEFAULT_MM,
+            "singleBoxWidthMm": config.FIN_SINGLE_BOX_WIDTH_DEFAULT_MM,
+            "singleBoxDepthMm": config.FIN_SINGLE_BOX_DEPTH_DEFAULT_MM,
+            "singleTailDistanceMm": config.FIN_SINGLE_TAIL_DISTANCE_DEFAULT_MM,
+            "twinTailDistanceMm": config.FIN_TWIN_TAIL_DISTANCE_DEFAULT_MM,
+            "twinCenterDistanceMm": config.FIN_TWIN_CENTER_DISTANCE_DEFAULT_MM,
+            "twinAngleDeg": config.FIN_TWIN_ANGLE_DEFAULT_DEG,
+        },
+    }
+
+
+def _plug_cavities(mesh, plugs, fin_type, above_mm):
+    """_collect_plug_solids() de main_window.py."""
+    leash, fin = plugs["leash"], plugs["fin"]
+    solids = leash_plug_markers(
+        mesh,
+        leash["tailDistanceMm"],
+        leash["centerMm"],
+        leash["diameterMm"],
+        leash["depthMm"],
+        above_mm=above_mm,
+    )
+    if fin_type == "single":
+        solids += single_fin_markers(
+            mesh,
+            fin["singleTailDistanceMm"],
+            fin["singleBoxLongMm"],
+            fin["singleBoxWidthMm"],
+            fin["singleBoxDepthMm"],
+            above_mm=above_mm,
+        )
+    else:
+        solids += twin_fin_markers(
+            mesh,
+            fin["twinTailDistanceMm"],
+            fin["twinCenterDistanceMm"],
+            fin["twinAngleDeg"],
+            above_mm=above_mm,
+        )
+    return solids
+
+
+def _plug_supports(mesh, plugs, fin_type):
+    """_collect_plug_supports() de main_window.py."""
+    leash, fin = plugs["leash"], plugs["fin"]
+    supports = leash_plug_supports(
+        mesh,
+        leash["tailDistanceMm"],
+        leash["centerMm"],
+        leash["diameterMm"],
+        leash["depthMm"],
+    )
+    if fin_type == "single":
+        supports += single_fin_supports(
+            mesh,
+            fin["singleTailDistanceMm"],
+            fin["singleBoxLongMm"],
+            fin["singleBoxWidthMm"],
+            fin["singleBoxDepthMm"],
+        )
+    else:
+        supports += twin_fin_supports(
+            mesh,
+            fin["twinTailDistanceMm"],
+            fin["twinCenterDistanceMm"],
+            fin["twinAngleDeg"],
+        )
+    return supports
+
+
+def section_plugs(_model_path, mesh):
+    """Paso 4 (plugs): cavidades (marcador y resta) y soportes, single y twin fin."""
+    plugs = _default_plugs()
+    result = {"plugs": plugs}
+    for fin_type in ("single", "twin"):
+        result[fin_type] = {
+            "markers": [
+                _solid_summary(solid)
+                for solid in _plug_cavities(mesh, plugs, fin_type, MARKER_PROTRUSION_MM)
+            ],
+            "cavities": [
+                _solid_summary(solid)
+                for solid in _plug_cavities(mesh, plugs, fin_type, SUBTRACTION_MARGIN_MM)
+            ],
+            "supports": [
+                _solid_summary(solid) for solid in _plug_supports(mesh, plugs, fin_type)
+            ],
+        }
+    return result
+
+
+def _json_key(key):
+    return [part if isinstance(part, str) else int(part) for part in key]
+
+
+def section_split(_model_path, mesh):
+    """Paso 5 (split): split_board() con hexágonos y triángulos, valores por defecto."""
+    params = {
+        "pieceRadiusMm": config.PIECE_RADIUS_DEFAULT_MM,
+        "stringerWidthMm": config.STRINGER_WIDTH_DEFAULT_MM,
+        "cutlapWidthMm": config.CUTLAP_WIDTH_DEFAULT_MM,
+    }
+    result = {"params": params}
+    for shape, pattern in (("Hexagon", "hexagon"), ("Triangle", "triangle")):
+        pieces, cut_outlines = split_board(
+            mesh,
+            piece_radius_mm=params["pieceRadiusMm"],
+            stringer_width_mm=params["stringerWidthMm"],
+            cutlap_width_mm=params["cutlapWidthMm"],
+            split_pattern=pattern,
+        )
+        result[shape] = {
+            "pieces": [
+                {"key": _json_key(key), **_solid_summary(piece)}
+                for key, piece in pieces.items()
+            ],
+            "cut_outlines": [
+                {
+                    "borders": [_json_key(key) for key in entry["borders"]],
+                    "has_outline": entry["outline"] is not None
+                    and len(entry["outline"].discrete) > 0,
+                }
+                for entry in cut_outlines
+            ],
+        }
+    return result
+
+
+def _default_hollow():
+    return {
+        "wallMm": config.WALL_WIDTH_DEFAULT_MM,
+        "topMm": config.TOP_WIDTH_DEFAULT_MM,
+        "bottomMm": config.BOTTOM_WIDTH_DEFAULT_MM,
+        "holePct": config.HOLE_RADIUS_DEFAULT_PCT,
+    }
+
+
+def section_hollow(_model_path, mesh):
+    """Paso 6 (vaciado): hollow_piece() de cada pieza del núcleo (split hexagonal)."""
+    pieces, _ = split_board(
+        mesh,
+        piece_radius_mm=config.PIECE_RADIUS_DEFAULT_MM,
+        stringer_width_mm=config.STRINGER_WIDTH_DEFAULT_MM,
+        cutlap_width_mm=config.CUTLAP_WIDTH_DEFAULT_MM,
+        split_pattern="hexagon",
+    )
+    params = _default_hollow()
+    thickness_axis = detect_thickness_axis(mesh)
+    hollowed = []
+    for key, piece in pieces.items():
+        if len(key) != 2 or key[1] == "cutlap":
+            continue
+        result = hollow_piece(
+            piece,
+            params["wallMm"],
+            params["topMm"],
+            params["bottomMm"],
+            params["holePct"],
+            thickness_axis,
+        )
+        cavity_only = hollow_piece(
+            piece, params["wallMm"], params["topMm"], params["bottomMm"], 0, thickness_axis
+        )
+        hollowed.append(
+            {
+                "key": _json_key(key),
+                "solid_volume_mm3": float(abs(piece.volume)),
+                "cavity_only_volume_mm3": float(abs(cavity_only.volume)),
+                **_solid_summary(result),
+            }
+        )
+    return {"params": params, "shape": "Hexagon", "pieces": hollowed}
+
+
+def _json_piece_key(key):
+    """Claves de exportación: los soportes llevan anidada la clave de su celda."""
+    if key[0] == "support":
+        return ["support", int(key[1]), _json_key(key[2])]
+    return _json_key(key)
+
+
+def section_export(_model_path, mesh):
+    """Paso 7 (exportación): process_and_show() de export_window.py, sin interfaz."""
+    pieces, _ = split_board(
+        mesh,
+        piece_radius_mm=config.PIECE_RADIUS_DEFAULT_MM,
+        stringer_width_mm=config.STRINGER_WIDTH_DEFAULT_MM,
+        cutlap_width_mm=config.CUTLAP_WIDTH_DEFAULT_MM,
+        split_pattern="hexagon",
+    )
+    plugs = _default_plugs()
+    hollow = _default_hollow()
+    thickness_axis = detect_thickness_axis(mesh)
+
+    window = ExportWindow.__new__(ExportWindow)
+    window._plug_solids = _plug_cavities(mesh, plugs, "single", SUBTRACTION_MARGIN_MM)
+    window._plug_supports = _plug_supports(mesh, plugs, "single")
+
+    final = {}
+    for key, piece_mesh in pieces.items():
+        if _is_hollowable(key):
+            piece = hollow_piece(
+                piece_mesh,
+                hollow["wallMm"],
+                hollow["topMm"],
+                hollow["bottomMm"],
+                hollow["holePct"],
+                thickness_axis,
+            )
+        else:
+            piece = piece_mesh.copy()
+        final[key] = window._subtract_plugs(key, piece)
+        final.update(window._support_fragments(key, piece_mesh))
+
+    return {
+        "plugs": plugs,
+        "hollow": hollow,
+        "shape": "Hexagon",
+        "pieces": [
+            {"key": _json_piece_key(key), "name": _piece_name(key), **_solid_summary(piece)}
+            for key, piece in final.items()
+        ],
+    }
+
+
 SECTIONS = {
     "load": section_load,
     "surface": section_surface,
+    "plugs": section_plugs,
+    "split": section_split,
+    "hollow": section_hollow,
+    "export": section_export,
 }
 
 

@@ -40,3 +40,6 @@ _legacy/
 
 # Python (tools/reference)
 __pycache__/
+
+# Entorno Python de tools/reference (no se versiona)
+tools/reference/.venv/

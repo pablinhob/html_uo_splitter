@@ -10,3 +10,4 @@ docker-compose.yml
 
 # Datos de referencia generados por tools/reference (JSON escrito por Python)
 tests/fixtures/reference/
+tools/reference/.venv/

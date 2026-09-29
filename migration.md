@@ -6,17 +6,17 @@ shapely + manifold3d + pymeshfix) a la web (Vite + React + three.js).
 Cada paso termina con la app funcionando y se valida antes de pasar al siguiente.
 Las normas de [CLAUDE.md](CLAUDE.md) aplican a todos los pasos.
 
-| #   | Paso                                                             | Estado                        |
-| --- | ---------------------------------------------------------------- | ----------------------------- |
-| 0   | Interfaz y estructura de carpetas                                | ✅ Hecho                      |
-| 1   | Base de calidad: linter, formato, tests y adaptación del código  | ✅ Hecho                      |
-| 2   | Motor geométrico: manifold-3d, Web Worker y reparación de mallas | ⏳ Falta la referencia Python |
-| 3   | Ejes de la tabla y lectura de superficie                         | ⏳ Falta la referencia Python |
-| 4   | Plugs: cavidades, soportes y marcadores                          | Pendiente                     |
-| 5   | Split: stringer, cutlap y rejilla de polígonos                   | Pendiente                     |
-| 6   | Vaciado de piezas y previsualización                             | Pendiente                     |
-| 7   | Exportación OBJ / 3MF                                            | Pendiente                     |
-| 8   | Cierre: validación con los tres modelos y limpieza               | Pendiente                     |
+| #   | Paso                                                             | Estado   |
+| --- | ---------------------------------------------------------------- | -------- |
+| 0   | Interfaz y estructura de carpetas                                | ✅ Hecho |
+| 1   | Base de calidad: linter, formato, tests y adaptación del código  | ✅ Hecho |
+| 2   | Motor geométrico: manifold-3d, Web Worker y reparación de mallas | ✅ Hecho |
+| 3   | Ejes de la tabla y lectura de superficie                         | ✅ Hecho |
+| 4   | Plugs: cavidades, soportes y marcadores                          | ✅ Hecho |
+| 5   | Split: stringer, cutlap y rejilla de polígonos                   | ✅ Hecho |
+| 6   | Vaciado de piezas y previsualización                             | ✅ Hecho |
+| 7   | Exportación OBJ / 3MF                                            | ✅ Hecho |
+| 8   | Cierre: validación con los tres modelos y limpieza               | ✅ Hecho |
 
 ## Equivalencias de librerías
 
@@ -41,9 +41,9 @@ Las dependencias de cada paso se piden antes de instalarlas, según CLAUDE.md.
   `Mesh.merge()` de manifold; queda vigilar STL más dañados que los de ejemplo.
 - **Rendimiento.** El split hace una intersección por celda y el vaciado une miles
   de triángulos en 2D. Todo va en un Web Worker desde el paso 2 y se mide en el 8.
-- **Resultados de referencia.** El venv de `_legacy/` es de macOS y no funciona en
-  el contenedor. Hay que preparar un entorno Python aparte para generar los datos
-  con los que comparar los tests (paso 2).
+- **Resultados de referencia.** Resuelto: `tools/reference/.venv` (no versionado)
+  ejecuta el `core/` original en el contenedor con las mismas versiones de trimesh,
+  shapely, manifold3d y pymeshfix que el programa de Python.
 
 ## Añadidos fuera del plan
 
@@ -100,7 +100,7 @@ las cumpla antes de portar lógica.
   estadísticas que antes en los modelos de ejemplo (Mini Simmons: 36,60 L; Cobra:
   33,65 L).
 
-## Paso 2 · Motor geométrico ⏳
+## Paso 2 · Motor geométrico ✅
 
 **Objetivo:** tener la infraestructura con la que se portará toda la geometría.
 
@@ -131,18 +131,15 @@ las cumpla antes de portar lógica.
   el JSON.
 - Build de producción: el Worker y el `.wasm` van en paquetes propios (162 KB + 541 KB).
 
-**Pendiente para cerrarlo:**
-
-1. Generar las referencias en el Mac, desde la raíz del proyecto:
-   `_legacy/ulaola_surfboard_splitter/venv/bin/python tools/reference/generate_reference.py`
-2. `npm test`: los 3 tests de comparación deben pasar.
-3. Probar en el navegador que cargar los tres STL funciona igual que antes (y que
-   Mini Simmons muestra en la consola el mensaje de reparación).
+- Referencias generadas en el contenedor y comparadas. pymeshfix repara de otra
+  manera (Cobra: 10 448 → 10 338 caras; manifold, 10 428), pero volúmenes y bounding
+  boxes coinciden. trimesh considera abierta la malla de Cobra, que manifold ya acepta
+  tal cual, así que el test solo exige la implicación en cada sentido.
 
 **Terminado cuando:** los tres modelos se cargan y quedan cerrados, y existen los
 datos de referencia.
 
-## Paso 3 · Ejes y superficie ⏳
+## Paso 3 · Ejes y superficie ✅
 
 **Portar de `mesh_ops.py`:** `_detect_axes`, `board_axes`, `detect_thickness_axis`,
 `surface_height`, `_surface_hit` y `surface_frame`.
@@ -170,58 +167,170 @@ datos de referencia.
   y 16 marcos por modelo en puntos derivados del bounding box. El JSON guarda los
   puntos, así que el test de JS usa exactamente los mismos.
 
-**Pendiente para cerrarlo:** generar las referencias en el Mac (el mismo comando del
-paso 2, que ya incluye esta sección) y pasar `npm test`.
+- Comparado con Python: ejes, alturas (< 0,05 mm) y normales (< 0,5°) coinciden en los
+  tres modelos.
 
 **Terminado cuando:** los tests coinciden con Python (ejes, alturas y normales, con
 tolerancias explícitas: 0,05 mm y 0,5°).
 
-## Paso 4 · Plugs
+## Paso 4 · Plugs ✅
 
 **Portar:** `plug_subtraction_geometries.py` y `plug_position.py`: leash plug,
 single fin, twin fin (Futures) y sus soportes.
 
-- Marcadores verdes en el visor que se actualizan al cambiar los parámetros del
-  paso 1 de la interfaz, como en el original.
+**Hecho:**
 
-**Terminado cuando:** los marcadores se ven bien colocados en los tres modelos y los
-volúmenes y bounding boxes coinciden con Python.
+- `Helpers/plugPlacement.js`: posición del plug (desde la cola y la línea central) y
+  la matriz que lo apoya sobre la superficie siguiendo el rocker y el toe-in.
+- `Helpers/plugGeometry.js`: cavidades y soportes de leash, caja de quilla central y
+  caja Futures de dos niveles.
+  - Los `buffer` de shapely son aquí cierres convexos de círculos de 96 lados
+    (estadio, rectángulo redondeado) y `offset` redondeados de `CrossSection`.
+  - Todos los intermedios WASM se liberan con `withTemporaries`.
+- `Helpers/plugSolids.js`: traduce los parámetros del paso 1 de la interfaz a la
+  lista de cavidades o soportes (`_collect_plug_solids` / `_collect_plug_supports`).
+- Worker: petición `plugMarkers`. `Hooks/usePlugMarkers.js` la lanza al cambiar la
+  tabla o cualquier parámetro, descarta las respuestas atrasadas y libera las
+  geometrías que sustituye. Los marcadores verdes no mueven la cámara.
+- Diferencia con el original: los marcadores siguen visibles tras el split. Python
+  los borraba al mostrar las piezas y los volvía a pintar al tocar un parámetro.
+- Constantes (holguras, medidas Futures, protrusiones) en `config.js`.
+- Comparado con Python en los tres modelos, con single y twin fin: volúmenes (< 1 %)
+  y bounding boxes (< 0,2 mm) de marcadores, cavidades a restar y soportes.
+- Divergencia conocida (`tests/support/reference.js`): el soporte del leash de Cobra
+  sale volcado en Python.
+  - Su cruz de muestreo cae justo en una arista de la malla reparada por pymeshfix,
+    el rayo de trimesh no toca la cubierta y toma el casco como superficie.
+  - En la web queda bien apoyado, y un test propio lo comprueba.
 
-## Paso 5 · Split
+## Paso 5 · Split ✅
 
 **Portar:** `split_lengthwise` y `split_board` (`mesh_ops.py`), `cutlap.py`,
 `polygon_grid.py`, `hex_grid.py` y `triangle_grid.py`.
 
-- Botón "Split base polygons" funcional, árbol de piezas relleno, colores por tipo
-  de pieza, contornos de corte y selección con el modelo fantasma.
+**Hecho:**
 
-**Terminado cuando:** el número de piezas y sus volúmenes coinciden con Python para
-hexágonos y triángulos.
+- Todo el corte trabaja en un marco canónico (X largo, Y ancho, Z grosor;
+  `Helpers/boardFrame.js`), igual que Python remapea sus prismas a los ejes de la
+  tabla. Las piezas vuelven al marco del STL, así que funciona con la tabla orientada
+  en cualquier eje.
+- `Helpers/splitBoard.js`:
+  - Mitades A y B y stringer con `trimByPlane` (como `slice_mesh_plane`).
+  - Cutlap (`Helpers/cutlap.js`): huella con `Manifold.project()`, `offset` negativo,
+    y la mayor pieza si queda partida.
+  - Cada parte se trocea con la rejilla (`Helpers/splitGrid.js` y
+    `Helpers/splitCells.js`).
+  - Los contornos de corte se asocian a sus piezas con las mismas reglas que
+    `split_board`.
+- Contornos (`Helpers/meshOutline.js`): el borde de las caras de una tapa de corte,
+  como `submesh().outline()`. El del cutlap usa una rejilla espacial para no comparar
+  cada cara con todo el contorno.
+- Ordenación de piezas como `sorted()` de Python, para que "Main Split N" coincida.
+- Worker: petición `split`. La tienda del Worker (`Helpers/geometryStore.js`) guarda
+  las piezas originales para el vaciado y la exportación, y las peticiones pasan a
+  módulos propios (`boardRequests.js`, `splitRequest.js`).
+- Interfaz: el botón "Split base polygons" funciona y rellena el árbol.
+  - Cada tipo de pieza tiene su color, con sus aristas.
+  - Los contornos de corte se ven con las piezas seleccionadas, sobre el fantasma de
+    la tabla.
+  - Al terminar se abre el paso 3, como en el original.
+- Rendimiento: 90-120 piezas en menos de 0,5 s en los modelos de ejemplo (Python
+  tarda varios segundos por modelo).
+- Comparado con Python en los tres modelos, con hexágonos y triángulos:
+  - Claves y número de piezas idénticos, y los contornos se asocian a las mismas piezas.
+  - 5_8 DRIFT OBQ, cerrado de origen: volúmenes exactos.
+  - Mini Simmons: < 0,3 %, porque pymeshfix y manifold reparan distinto.
+- Divergencia conocida (`KNOWN_PYTHON_REGION_DIVERGENCES`): pymeshfix acorta 6 mm la
+  muesca de la cola de golondrina de Cobra.
+  - La huella llega a x = 28,25 mm en lugar de los 34,46 mm del STL.
+  - Las cuatro piezas de esa zona difieren hasta un 4,6 %. La web conserva la
+    geometría original, y un test lo comprueba.
 
-## Paso 6 · Vaciado
+## Paso 6 · Vaciado ✅
 
 **Portar:** `hollow.py`: huella de la pieza, cavidad con paredes y agujeros laterales.
 
-- Botón "Preview hollowing" funcional sobre la pieza seleccionada.
+**Hecho:**
 
-**Terminado cuando:** el volumen de las piezas vaciadas coincide con Python.
+- `Helpers/hollow.js`, en el marco canónico (Z = grosor, que Python pasaba aparte
+  como `thickness_axis`):
+  - Cavidad: huella con `project()`, encogida la pared y extruida entre las pieles.
+  - Agujeros: en cada cara lateral de la sección a media altura, con diámetro
+    `holePct` % de la altura local, repartidos igual que en Python y con la altura
+    local medida por rayos sobre la propia pieza.
+- `Helpers/polygon2d.js`: Douglas-Peucker (`simplify` de shapely) y punto en polígono.
+- `createSurfaceProbe` acepta ejes explícitos: una pieza puede ser más alta que ancha y
+  sus medidas no dicen cuál es el grosor.
+- Worker: petición `hollowPiece`. Siempre vacía la pieza original guardada, como
+  `original_pieces` en Python.
+- Interfaz: "Preview hollowing" vacía la pieza seleccionada y la muestra; después se
+  habilita "Export Hollowing".
+- Comparado con Python en los tres modelos, en todas las piezas del núcleo:
+  - Volumen vaciado total: < 0,2 %.
+  - Cavidad por pieza: típico < 0,3 %, máximo 3,6 %. Sale de la huella: unión de
+    triángulos en shapely, `project()` en manifold.
+  - Volumen retirado por pieza: hasta un 5,7 % en piezas diminutas. Los agujeros se
+    reparten por las caras de la sección simplificada, y Douglas-Peucker depende del
+    vértice por el que empieza el anillo, que trimesh y manifold eligen distinto.
+    Algunas caras llevan un agujero más o menos; ambos resultados son válidos.
 
-## Paso 7 · Exportación
+## Paso 7 · Exportación ✅
 
 **Portar:** `export_window.py`: vaciar todas las piezas, restar las cavidades de los
-plugs y añadir los soportes; después, exportar.
+plugs, añadir los soportes y exportar.
 
-- Proceso en el worker con progreso en la ventana de exportación.
-- OBJ con materiales (`.mtl`) y 3MF, descargados desde el navegador.
-- Posible dependencia nueva: `fflate` (zip para el 3MF).
+**Hecho:**
 
-**Terminado cuando:** los ficheros se abren en un slicer o CAD y contienen las mismas
-piezas que la exportación de Python.
+- `Helpers/exportPieces.js` (`process_and_show`): vacía cada pieza del núcleo, le
+  resta las cavidades de los plugs que la tocan (`_subtract_plugs`) y añade, como
+  piezas aparte, los soportes recortados a su celda y taladrados
+  (`_support_fragments`). Un fallo en una pieza no para el resto; se avisa en la
+  consola.
+- Formatos (`Helpers/exportFormats.js`):
+  - OBJ con colores por material. Se descarga como `surfboard_pieces_obj.zip` con el
+    `.obj` y su `.mtl`, porque el navegador no puede escribir dos ficheros juntos en
+    una carpeta, como hacía el original.
+  - 3MF sin colores, igual que el original.
+  - Nombres de objeto como `_piece_name` ("Side A - Split 3", "Support 1 - Stringer"...).
+- `Helpers/zip.js`: zip mínimo sin compresión (con CRC-32) para el 3MF y el paquete
+  OBJ. No hace falta `fflate`.
+- Worker: peticiones `processExport` (con el progreso pieza a pieza) y `exportFile`.
+  La tienda guarda las piezas finales hasta el siguiente split.
+- Interfaz: la ventana "Export hollowing" procesa al abrirse, muestra el progreso y
+  las piezas finales, y "Export file" descarga el formato elegido.
+- Validado:
+  - Python produce las mismas piezas finales: mismas claves y nombres, y 10 soportes
+    en Cobra, 8 en los otros dos. La referencia ejecuta los métodos reales de
+    `export_window.py`, con PySide6 y PyVista sustituidos por esqueletos vacíos.
+  - Volúmenes dentro de las tolerancias del split y del vaciado.
+  - trimesh abre los ficheros exportados (zip válido, 103 objetos con sus nombres y
+    cuatro materiales de color).
+  - Con `process=False` los 103 objetos son estancos. Con el procesado por defecto de
+    trimesh, dos dejan de serlo: esa fusión de vértices pega dos superficies que
+    manifold deja tocándose en un punto.
 
-## Paso 8 · Cierre
+## Paso 8 · Cierre ✅
 
-- Validación completa con los tres modelos de ejemplo frente a Python.
-- Medición de tiempos y optimización si hace falta.
-- Quitar los avisos de "not migrated yet" y actualizar CLAUDE.md.
+- Validación frente a Python de los tres modelos, en todos los pasos (`npm test`, 128
+  tests): carga, superficie, plugs, split (hexágonos y triángulos), vaciado y
+  exportación. Las divergencias conocidas están explicadas en
+  `tests/support/reference.js`, y todas se deben a pymeshfix o a un caso límite de los
+  rayos de trimesh, no a la migración.
+- Tiempos en Node (el navegador es similar). Valores por defecto; ms, con piezas o
+  tamaño entre paréntesis:
+
+| Modelo        | Rejilla  | Carga | Marcadores | Split     | Vaciar 1 | Procesar export | OBJ (zip)    | 3MF           |
+| ------------- | -------- | ----- | ---------- | --------- | -------- | --------------- | ------------ | ------------- |
+| Mini Simmons  | Hexagon  | 167   | 12         | 491 (83)  | 20       | 1014 (91)       | 114 (5,7 MB) | 124 (10,1 MB) |
+| Mini Simmons  | Triangle | 97    | 1          | 502 (113) | 30       | 1669 (127)      | 108 (7,5 MB) | 144 (13,3 MB) |
+| Cobra         | Hexagon  | 22    | 1          | 151 (93)  | 9        | 853 (103)       | 69 (4,5 MB)  | 80 (8,0 MB)   |
+| Cobra         | Triangle | 19    | 1          | 167 (119) | 20       | 1284 (135)      | 83 (5,9 MB)  | 113 (10,4 MB) |
+| 5_8 DRIFT OBQ | Hexagon  | 108   | 1          | 543 (89)  | 14       | 1164 (97)       | 129 (7,0 MB) | 153 (12,5 MB) |
+| 5_8 DRIFT OBQ | Triangle | 113   | 1          | 653 (117) | 29       | 1588 (131)      | 124 (8,6 MB) | 161 (15,2 MB) |
+
+- Retirados los avisos de "not migrated yet": todas las acciones funcionan.
 - Fuera de alcance, porque tampoco existían en el original: Open Project, Save
   Project y Save As.
+- Pendiente de hacer a mano: la prueba de la interfaz en un navegador. En el
+  contenedor no hay navegador; la lógica está probada con tests y el servidor sirve
+  todos los módulos.

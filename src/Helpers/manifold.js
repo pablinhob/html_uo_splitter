@@ -70,3 +70,21 @@ export function meshDataFromManifold(manifold) {
     index: new Uint32Array(mesh.triVerts),
   };
 }
+
+/**
+ * Ejecuta `build(keep)` y libera al terminar todo lo que se haya pasado a
+ * `keep`: sirve para los CrossSection/Manifold intermedios de una construcción.
+ * Lo que devuelve `build` no se libera (salvo que también se haya pasado a keep).
+ */
+export function withTemporaries(build) {
+  const temporaries = [];
+  const keep = (object) => {
+    temporaries.push(object);
+    return object;
+  };
+  try {
+    return build(keep);
+  } finally {
+    temporaries.forEach((object) => object.delete());
+  }
+}

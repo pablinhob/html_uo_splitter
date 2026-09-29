@@ -1,0 +1,15 @@
+# Dependencias de _legacy/app/core para generar los datos de referencia.
+# Las librerías que determinan la geometría van fijadas a las versiones del
+# requirements.txt original. numpy, scipy y networkx se dejan en la última
+# versión compatible con el Python del contenedor (3.11), porque las del
+# original exigen Python 3.12 o superior.
+trimesh==4.12.2
+shapely==2.1.2
+manifold3d==3.5.2
+pymeshfix==0.18.1
+rtree==1.4.1
+mapbox_earcut==2.0.0
+lxml==6.1.1
+numpy<2.5
+scipy
+networkx<3.7

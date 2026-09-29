@@ -74,3 +74,21 @@ export function buildPiecesTree(pieceKeys) {
   const sides = Array.from(groupBySide(pieceKeys), ([half, group]) => sideNode(half, group));
   return [leafNode(ALL_KEY, 'All'), ...singles, ...sides];
 }
+
+/**
+ * Nombre de cada objeto en el fichero exportado (_piece_name de export_window.py):
+ * "Stringer", "Side A - Split 3", "Cutlap B - Split 1", "Support 2 - Side A - Split 3".
+ * Los soportes tienen clave ['support', índice, claveDeLaCelda].
+ */
+export function pieceName(key) {
+  if (key[0] === 'support') return `Support ${key[1] + 1} - ${pieceName(key[2])}`;
+  if (key.length === 1) return PIECE_LABELS[key[0]] ?? String(key[0]);
+  if (key.length === 3 && key[1] === 'cutlap') {
+    return `${CUTLAP_LABELS[key[0]] ?? 'Cutlap'} - Split ${key[2] + 1}`;
+  }
+  if (key.length === 2) return `${PIECE_LABELS[key[0]] ?? key[0]} - Split ${key[1] + 1}`;
+  return key.join('-');
+}
+
+// Pieza del núcleo que se puede vaciar (_is_hollowable): ni stringer ni cutlap.
+export const isHollowable = (key) => key.length === 2 && key[1] !== 'cutlap';

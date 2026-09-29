@@ -20,14 +20,16 @@ const unitVector = (axis, sign = 1) => [0, 1, 2].map((index) => (index === axis 
  * Prepara la malla para lanzar rayos. Se queda con los arrays de meshData (la
  * BVH reordena el índice), así que el llamante debe pasar una copia si los
  * necesita intactos. Devuelve { bounds, axes, hitsAlongThickness(point) }.
+ * `axes` se deduce del bounding box salvo que se pase: una pieza del split puede
+ * ser más alta que ancha, así que para ellas se usan los ejes de la tabla.
  */
-export function createSurfaceProbe(meshData) {
+export function createSurfaceProbe(meshData, knownAxes = null) {
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.BufferAttribute(meshData.positions, 3));
   geometry.setIndex(new THREE.BufferAttribute(meshData.index, 1));
   const bvh = new MeshBVH(geometry);
   const bounds = meshBounds(meshData);
-  const axes = detectAxes(bounds);
+  const axes = knownAxes ?? detectAxes(bounds);
   const { thicknessAxis } = axes;
 
   // Todos los cortes de un rayo en +grosor que pasa por `point` (en el plano).

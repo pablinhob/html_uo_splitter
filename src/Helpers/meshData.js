@@ -35,3 +35,10 @@ export function geometryFromMeshData(meshData) {
   geometry.computeBoundingBox();
   return geometry;
 }
+
+// Geometría de líneas para el visor a partir de segmentos (x1, y1, z1, x2, y2, z2, ...).
+export function lineGeometryFromSegments(segments) {
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.BufferAttribute(segments, componentsPerVertex));
+  return geometry;
+}

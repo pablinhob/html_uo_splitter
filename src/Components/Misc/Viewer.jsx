@@ -12,7 +12,8 @@ import useThreeScene from '../../Hooks/useThreeScene';
 /**
  * Visor 3D (sustituye a MeshViewer de PyVista).
  *
- * objects: [{ key, geometry, color, opacity?, visible?, edges?, frame? }]
+ * objects: [{ key, geometry, color, opacity?, visible?, edges?, frame?, lines? }]
+ *   - lines: la geometría son segmentos de línea (contornos de corte), no una malla.
  *   - edges: dibuja las aristas de corte (feature edges) en negro.
  *   - frame: cuenta para encuadrar la cámara y para las esquinas del bbox.
  * La cámara se reencuadra cuando cambia el bbox de los objetos visibles con

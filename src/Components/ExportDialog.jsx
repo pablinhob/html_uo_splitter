@@ -4,16 +4,17 @@ import Viewer from './Misc/Viewer';
 
 /**
  * Ventana "Export hollowing" (export_window.py) como diálogo modal.
- * status/objects/ready los gestiona el llamante; onExport recibe el formato.
+ * dialog (useExportDialog): { isOpen, status, objects, isReady, exportFile(format), close }
  */
-export default function ExportDialog({ open, status, objects, ready, onExport, onClose }) {
+export default function ExportDialog({ dialog }) {
+  const { isOpen: open, status, objects, isReady: ready, exportFile, close: onClose } = dialog;
   const dialogRef = useRef(null);
   const [formatIndex, setFormatIndex] = useState(0);
 
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) dialog.close();
+    const element = dialogRef.current;
+    if (open && !element.open) element.showModal();
+    if (!open && element.open) element.close();
   }, [open]);
 
   return (
@@ -41,7 +42,7 @@ export default function ExportDialog({ open, status, objects, ready, onExport, o
         <button
           type="button"
           disabled={!ready}
-          onClick={() => onExport(EXPORT_FORMATS[formatIndex])}
+          onClick={() => exportFile(EXPORT_FORMATS[formatIndex])}
         >
           Export file
         </button>

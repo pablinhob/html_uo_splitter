@@ -179,7 +179,7 @@ const reactRules = {
 };
 
 export default [
-  { ignores: ['_legacy/', 'dist/', 'node_modules/'] },
+  { ignores: ['_legacy/', 'dist/', 'node_modules/', 'tools/reference/.venv/'] },
   js.configs.recommended,
   importPlugin.flatConfigs.recommended,
   {

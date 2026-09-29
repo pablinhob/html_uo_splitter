@@ -1,44 +1,38 @@
 import { useState } from 'react';
-import { DEFAULT_HOLLOW, NOT_MIGRATED_MESSAGE } from '../config';
+import { DEFAULT_HOLLOW } from '../config';
 import logger from '../Helpers/logger';
-import { keyId } from '../Helpers/pieces';
-
-const isCorePiece = (key) => Boolean(key) && key.length === 2 && key[1] !== 'cutlap';
-
-function logHollowing(key, { wallMm, topMm, bottomMm, holePct }) {
-  const params = `wall=${wallMm} mm, top=${topMm} mm, bottom=${bottomMm} mm, hole=${holePct}%`;
-  logger.info(`Hollowing ${keyId(key)}: ${params}`);
-}
+import { ALL_KEY } from '../Helpers/pieces';
+import useBoardSplit from './useBoardSplit';
+import useHollowPreview from './useHollowPreview';
+import usePieceGeometries from './usePieceGeometries';
 
 /**
- * Pasos 2 y 3 de la interfaz: piezas del split, pieza seleccionada y vaciado
- * (on_execute / on_piece_selection_changed / on_apply_hollow de main_window.py).
- * pieces: [{ key, geometry }] con la clave como array, p. ej. ['a', 'cutlap', 2].
- * `panel` son las props de PiecesPanel salvo onExport, que aporta App.
+ * Pasos 2 y 3 de la interfaz: split, pieza seleccionada y vaciado (on_execute /
+ * on_piece_selection_changed / on_apply_hollow de main_window.py). El corte se
+ * hace en el Worker, que conserva las piezas originales para el vaciado.
+ * `split(params)` devuelve true si ha ido bien. `panel` son las props de
+ * PiecesPanel salvo onExport, que aporta App.
  */
-export default function usePiecesWorkflow(mesh) {
-  const [pieces, setPieces] = useState([]);
+export default function usePiecesWorkflow(geometryWorker, mesh) {
+  const geometries = usePieceGeometries();
   const [selectedPiece, setSelectedPiece] = useState(null);
   const [hollow, setHollow] = useState(DEFAULT_HOLLOW);
   const [isExportEnabled, setIsExportEnabled] = useState(false);
+  const { split, isSplitting } = useBoardSplit(geometryWorker, mesh, geometries, () => {
+    setSelectedPiece(ALL_KEY);
+    setIsExportEnabled(false);
+  });
+
+  const { applyHollow, isHollowing } = useHollowPreview(geometryWorker, geometries);
 
   const reset = () => {
-    setPieces([]);
+    geometries.clear();
     setSelectedPiece(null);
     setIsExportEnabled(false);
   };
 
-  const split = (splitParams) => {
-    if (!mesh) {
-      logger.warning('No STL loaded, nothing to split');
-      return;
-    }
-    logger.info(`Splitting board lengthwise and into ${splitParams.shape.toLowerCase()} pieces...`);
-    logger.warning(`Split: ${NOT_MIGRATED_MESSAGE}`);
-  };
-
   const panel = {
-    pieceKeys: pieces.map((piece) => piece.key),
+    pieceKeys: geometries.pieces.map((piece) => piece.key),
     selected: selectedPiece,
     hollow,
     exportEnabled: isExportEnabled,
@@ -51,15 +45,20 @@ export default function usePiecesWorkflow(mesh) {
       setHollow(next);
       setIsExportEnabled(false);
     },
-    onApply: () => {
-      if (!isCorePiece(selectedPiece)) {
-        logger.warning('Select a core piece before applying');
-        return;
-      }
-      logHollowing(selectedPiece, hollow);
-      logger.warning(`Preview hollowing: ${NOT_MIGRATED_MESSAGE}`);
+    // Con una previsualización fresca ya se puede exportar.
+    onApply: async () => {
+      if (await applyHollow(selectedPiece, hollow)) setIsExportEnabled(true);
     },
   };
 
-  return { pieces, selectedPiece, reset, split, panel };
+  return {
+    pieces: geometries.pieces,
+    outlines: geometries.outlines,
+    selectedPiece,
+    hollow,
+    isBusy: isSplitting || isHollowing,
+    reset,
+    split,
+    panel,
+  };
 }

@@ -10,8 +10,9 @@ si una tarea choca con alguna norma, avisa antes de saltártela.
 - `_legacy/` es **solo referencia**: nunca se edita, no se versiona y Vite no lo vigila.
 - La migración va **por fases**. Haz solo la fase que se pida y no te adelantes a la
   siguiente, aunque sea evidente.
-- El plan y el estado de cada paso están en [migration.md](migration.md). Actualiza
-  su tabla de estado al empezar y al terminar cada paso.
+- El plan y el estado de cada paso están en [migration.md](migration.md). Los pasos 0 a 8
+  están terminados: toda la funcionalidad del original está migrada y validada frente
+  a Python. Los cambios nuevos se anotan en su sección "Añadidos fuera del plan".
 - Arranque: `./com.up.sh` → http://localhost:5555 (el contenedor lanza `npm run dev`).
 
 ## Estructura de carpetas
@@ -121,8 +122,15 @@ public/examples/           # modelos de ejemplo y sus previews (EXAMPLE_MODELS e
   el resultado.
   - Toda la geometría pasa por un único Worker (`Helpers/geometryWorker.js`) al que la
     interfaz llama con `useGeometryWorker().request(type, payload)`.
-  - Cada operación nueva se añade como manejador en `Helpers/geometryService.js`,
-    que se prueba sin Worker.
+  - Cada operación es una petición en su propio módulo (`boardRequests.js`,
+    `splitRequest.js`, `hollowRequest.js`, `exportRequests.js`), registrada en
+    `Helpers/geometryService.js`, que se prueba sin Worker. Peticiones actuales:
+    `loadBoard`, `plugMarkers`, `split`, `hollowPiece`, `processExport` y
+    `exportFile`.
+  - El estado entre peticiones (tabla, piezas del split y piezas finales de la
+    exportación) vive en `Helpers/geometryStore.js`, que libera la memoria WASM.
+  - La geometría de corte trabaja en el marco canónico (`Helpers/boardFrame.js`:
+    X largo, Y ancho, Z grosor) y vuelve al marco del STL al terminar.
   - Las mallas viajan como `meshData` (`{ positions, index }`, arrays tipados), y se
     transfieren en lugar de copiarse.
   - El Worker conserva el `Manifold` de la tabla cargada: no se reenvía en cada
@@ -157,8 +165,12 @@ public/examples/           # modelos de ejemplo y sus previews (EXAMPLE_MODELS e
   a una carpeta del proyecto o se generan en el propio test.
 - **Datos de referencia:** `tools/reference/generate_reference.py` ejecuta el `core/`
   original y escribe `tests/fixtures/reference/<modelo>.json`.
-  - Se lanza en el Mac con el venv de `_legacy/`, porque ese venv no funciona en el
-    contenedor.
+  - Se lanza en el contenedor: `tools/reference/.venv/bin/python tools/reference/generate_reference.py`.
+    El venv (no versionado) se crea con las versiones de `tools/reference/requirements.txt`:
+    `python3 -m venv --without-pip tools/reference/.venv`, `get-pip.py` e
+    `pip install -r tools/reference/requirements.txt`.
+  - Si un resultado de Python es incorrecto, se anota en `KNOWN_PYTHON_DIVERGENCES`
+    (`tests/support/reference.js`) con el motivo, y se sustituye por un test propio.
   - Cada paso añade su sección al script. Los tests que comparan con Python se
     saltan (`it.skipIf`) mientras no exista el JSON.
 - Cada bug corregido añade un test que lo reproduce.

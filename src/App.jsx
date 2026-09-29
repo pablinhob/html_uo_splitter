@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { DEFAULT_PLUGS, DEFAULT_SPLIT, NOT_MIGRATED_MESSAGE } from './config';
-import logger from './Helpers/logger';
+import { DEFAULT_PLUGS, DEFAULT_SPLIT } from './config';
 import useBoardFile from './Hooks/useBoardFile';
 import useBoardOpening from './Hooks/useBoardOpening';
 import useGeometryWorker from './Hooks/useGeometryWorker';
@@ -15,13 +14,16 @@ import RightPanel from './Components/RightPanel/RightPanel';
 export default function App() {
   const geometryWorker = useGeometryWorker();
   const board = useBoardFile(geometryWorker);
-  const workflow = usePiecesWorkflow(board.mesh);
-  const exportDialog = useExportDialog(workflow.pieces);
+  const workflow = usePiecesWorkflow(geometryWorker, board.mesh);
   const [plugs, setPlugs] = useState(DEFAULT_PLUGS);
   const [split, setSplit] = useState(DEFAULT_SPLIT);
+  const exportDialog = useExportDialog(geometryWorker, workflow.pieces, {
+    hollow: workflow.hollow,
+    plugs,
+  });
   // Sección abierta del acordeón: 'plugs' | 'split' | 'pieces' | null
   const [expanded, setExpanded] = useState(null);
-  const viewerObjects = useViewerObjects(board.mesh, workflow.pieces, workflow.selectedPiece);
+  const viewerObjects = useViewerObjects({ geometryWorker, board, workflow, plugs });
 
   const opening = useBoardOpening(board, {
     onStart: () => {
@@ -31,8 +33,13 @@ export default function App() {
     onLoaded: () => setExpanded('plugs'),
   });
 
+  const isBusy = board.isBusy || workflow.isBusy;
+  const onSplit = async () => {
+    if (await workflow.split(split)) setExpanded('pieces');
+  };
+
   return (
-    <div className={`app${board.isBusy ? ' busy' : ''}`}>
+    <div className={`app${isBusy ? ' busy' : ''}`}>
       <LeftPanel
         file={{ fileName: board.fileName, stats: board.stats, onOpenSTL: opening.onFileInput }}
         steps={{
@@ -40,27 +47,17 @@ export default function App() {
           onExpandedChange: setExpanded,
           hasMesh: Boolean(board.mesh),
           hasPieces: workflow.pieces.length > 0,
-          isBusy: board.isBusy,
+          isBusy,
         }}
         plugs={{ value: plugs, onChange: setPlugs }}
-        split={{ value: split, onChange: setSplit, onExecute: () => workflow.split(split) }}
+        split={{ value: split, onChange: setSplit, onExecute: onSplit }}
         pieces={{ ...workflow.panel, onExport: exportDialog.open }}
       />
       <RightPanel
         viewerObjects={viewerObjects}
-        example={{
-          isVisible: !board.mesh && !board.isBusy,
-          onOpen: opening.openExample,
-        }}
+        example={{ isVisible: !board.mesh && !board.isBusy, onOpen: opening.openExample }}
       />
-      <ExportDialog
-        open={exportDialog.isOpen}
-        status="Processing hollowing for every piece, this may take a while..."
-        objects={[]}
-        ready={false}
-        onExport={() => logger.warning(`Export file: ${NOT_MIGRATED_MESSAGE}`)}
-        onClose={exportDialog.close}
-      />
+      <ExportDialog dialog={exportDialog} />
     </div>
   );
 }

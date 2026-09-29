@@ -98,13 +98,11 @@ export const VIEWER_HEADLIGHT_INTENSITY = 1.8;
 export const VIEWER_NEAR_FACTOR = 0.01;
 export const VIEWER_FAR_FACTOR = 100;
 
-// Aviso de las acciones cuya lógica geométrica (core/) aún no está migrada.
-export const NOT_MIGRATED_MESSAGE = 'not migrated yet (core geometry pending)';
-
-// Formatos de exportación, en orden de aparición; OBJ primero para que sea el de por defecto.
+// Formatos de exportación, en orden de aparición; OBJ primero para que sea el de por
+// defecto. En la web el OBJ se descarga en un .zip junto con su .mtl de colores.
 export const EXPORT_FORMATS = [
-  { label: 'OBJ', fileType: 'obj', suffix: '.obj', colors: true },
-  { label: '3MF', fileType: '3mf', suffix: '.3mf', colors: false },
+  { label: 'OBJ + MTL (zip)', fileType: 'obj' },
+  { label: '3MF', fileType: '3mf' },
 ];
 
 // Reparación de mallas no cerradas: distancia máxima (mm) a la que se fusionan
@@ -131,3 +129,67 @@ export const EXAMPLE_MODELS = [
 
 // Previews de los ejemplos: PNG cuadrado de este lado (px).
 export const EXAMPLE_PREVIEW_SIZE_PX = 256;
+
+// --- Plugs (plug_subtraction_geometries.py / plug_position.py) ---------------
+
+// Holgura añadida alrededor de cada cavidad para el inserto y el pegamento.
+export const PLUG_GLUE_CLEARANCE_MM = 0.2;
+// Segmentos por cuarto de arco en los contornos redondeados (resolution de shapely).
+export const PLUG_ARC_SEGMENTS_PER_QUARTER = 24;
+// Segmentos por cuarto de arco al ensanchar un contorno (buffer por defecto de shapely).
+export const PLUG_OFFSET_SEGMENTS_PER_QUARTER = 16;
+
+// Caja Futures: medidas APROXIMADAS de fresado (verificar con la plantilla oficial
+// antes de cortar tablas reales). Dos niveles con forma de estadio: una pestaña
+// poco profunda algo más ancha y larga, y debajo el cuerpo hasta el fondo.
+export const FUTURES_BODY_LENGTH_MM = 122.0;
+export const FUTURES_BODY_WIDTH_MM = 11.0;
+export const FUTURES_FLANGE_MARGIN_MM = 2.0;
+export const FUTURES_FLANGE_DEPTH_MM = 4.0;
+export const FUTURES_DEPTH_SIDE_MM = 16.0;
+
+// Caja de quilla central: aristas verticales redondeadas con este radio.
+export const SINGLE_FIN_CORNER_RADIUS_MM = 6.0;
+
+// Los marcadores sobresalen esto de la superficie para que se vea la zona a fresar.
+export const MARKER_PROTRUSION_MM = 0.1;
+// Al restar las cavidades de verdad, sobresalen esto para que la booleana corte limpio.
+export const SUBTRACTION_MARGIN_MM = 1.0;
+
+// --- Split (mesh_ops.py, polygon_grid.py, cutlap.py) --------------------------
+
+// Los prismas de corte sobresalen esto por arriba y por abajo del grosor de la tabla.
+export const SPLIT_PRISM_MARGIN_MM = 1.0;
+// Distancia máxima a un plano de corte para considerar una cara parte de su tapa.
+// Python usa 1e-4 con float64; aquí los vértices llegan en float32, de ahí el margen.
+export const SPLIT_PLANE_TOLERANCE_MM = 1e-3;
+// Distancia máxima al contorno interior del cutlap (touches_boundary / _boundary_outline).
+export const CUTLAP_BOUNDARY_TOLERANCE_MM = 1e-2;
+// Distancia al borde de cada mitad para decidir qué piezas tocan el corte central.
+export const SPLIT_BORDER_TOLERANCE_MM = 1e-3;
+// Segmentos por cuarto de arco al encoger la huella para el cutlap (buffer de shapely).
+export const CUTLAP_OFFSET_SEGMENTS_PER_QUARTER = 16;
+
+// --- Vaciado (hollow.py) -------------------------------------------------------
+
+// Segmentos del contorno de los agujeros laterales.
+export const FACE_HOLE_SECTIONS = 48;
+// El cilindro del agujero sobresale esto por fuera de la pared y entra esto dentro.
+export const DRILL_OUTER_MARGIN_MM = 1.0;
+export const DRILL_INNER_MARGIN_MM = 5.0;
+// Simplificación de la sección de la pieza antes de repartir agujeros por cara.
+export const COLLINEAR_TOLERANCE_MM = 0.1;
+// La altura local se mide este tanto hacia dentro de la cara.
+export const HEIGHT_SAMPLE_INSET_MM = 1.0;
+// Simplificación de la huella encogida antes de extruir la cavidad.
+export const FOOTPRINT_SIMPLIFY_MM = 0.1;
+// Segmentos por cuarto de arco al encoger la huella (buffer de shapely).
+export const HOLLOW_OFFSET_SEGMENTS_PER_QUARTER = 16;
+
+// --- Exportación (export_window.py) ---------------------------------------------
+
+// Nombre base de los ficheros exportados (como el "surfboard_pieces" del original).
+export const EXPORT_FILE_BASENAME = 'surfboard_pieces';
+// Componentes ambiente y especular de los materiales del .mtl (los de trimesh).
+export const EXPORT_MATERIAL_AMBIENT = [0.4, 0.4, 0.4];
+export const EXPORT_MATERIAL_SPECULAR = [0.4, 0.4, 0.4];
