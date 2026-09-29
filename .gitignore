@@ -35,3 +35,8 @@ Thumbs.db
 
 # Proyecto Python original (solo referencia para la migración)
 _legacy/
+
+.claude/
+
+# Python (tools/reference)
+__pycache__/
