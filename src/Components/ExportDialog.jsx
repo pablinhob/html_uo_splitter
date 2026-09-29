@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import Viewer from './Viewer'
+import Viewer from './Misc/Viewer'
 
 // Formatos en orden de aparición; OBJ primero para que sea el de por defecto.
 export const EXPORT_FORMATS = [

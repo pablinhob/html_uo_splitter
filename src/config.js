@@ -40,3 +40,44 @@ export const FIN_TWIN_BOX_WIDTH_MM = 20
 // Soporte sólido alrededor de cada cavidad de plug (material para taladrar).
 export const PLUG_HOLES_SOLID_CONTOUR_MM = 4
 export const PLUG_HOLES_SOLID_BOTTOM_MM = 2
+
+// Opciones de los selectores
+export const SPLIT_SHAPES = ['Hexagon', 'Triangle']
+export const FIN_TYPES = [
+  { value: 'single', label: 'Single Fin' },
+  { value: 'twin', label: 'Twin Fin' },
+]
+
+// Valores iniciales de los paneles
+export const DEFAULT_PLUGS = {
+  leash: {
+    diameter: LEASH_PLUG_DIAMETER_MM.default,
+    depth: LEASH_PLUG_DEPTH_MM.default,
+    tailDistance: LEASH_PLUG_TAIL_DISTANCE_MM.default,
+    center: LEASH_PLUG_CENTER_MM.default,
+  },
+  fin: {
+    type: 'single',
+    singleBoxLong: FIN_SINGLE_BOX_LONG_MM.default,
+    singleBoxWidth: FIN_SINGLE_BOX_WIDTH_MM.default,
+    singleBoxDepth: FIN_SINGLE_BOX_DEPTH_MM.default,
+    singleTailDistance: FIN_SINGLE_TAIL_DISTANCE_MM.default,
+    twinTailDistance: FIN_TWIN_TAIL_DISTANCE_MM.default,
+    twinCenterDistance: FIN_TWIN_CENTER_DISTANCE_MM.default,
+    twinAngle: FIN_TWIN_ANGLE_DEG.default,
+  },
+}
+
+export const DEFAULT_SPLIT = {
+  shape: SPLIT_SHAPES[0],
+  pieceRadius: PIECE_RADIUS_MM.default,
+  stringerWidth: STRINGER_WIDTH_MM.default,
+  cutlapWidth: CUTLAP_WIDTH_MM.default,
+}
+
+export const DEFAULT_HOLLOW = {
+  wall: WALL_WIDTH_MM.default,
+  top: TOP_WIDTH_MM.default,
+  bottom: BOTTOM_WIDTH_MM.default,
+  holePct: HOLE_RADIUS_PCT.default,
+}

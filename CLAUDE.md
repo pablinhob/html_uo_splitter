@@ -15,13 +15,69 @@ si una tarea choca con alguna norma, avisa antes de saltártela.
   registran un aviso en la consola.
 - Arranque: `./com.up.sh` → http://localhost:5555 (el contenedor lanza `npm run dev`).
 
-### Estructura de `src/`
+## Estructura de carpetas
 
-- `config.js`: constantes y rangos (portado de `config.py`).
-- `logger.js`: log que alimenta la consola de la UI (sustituye a `logging`).
-- `mesh/`: carga y utilidades de mallas, sin React.
-- `components/`: componentes React (visor, paneles, controles, consola, export).
-- `App.jsx`: ventana principal y estado de la aplicación.
+```
+src/
+├── main.jsx               # punto de entrada
+├── App.jsx                # ventana principal y estado de la aplicación
+├── config.js              # constantes y rangos (portado de config.py)
+├── styles.css
+├── Components/
+│   ├── Misc/              # componentes reutilizados en varias partes de la UI
+│   │   ├── GroupBox.jsx
+│   │   └── SpinField.jsx
+│   └── LeftPanel/         # carpeta = componente padre
+│       ├── LeftPanel.jsx
+│       └── PlugsSetupPanel/
+│           ├── PlugsSetupPanel.jsx
+│           ├── LeashPlugPanel.jsx
+│           └── FinPlugPanel.jsx
+├── Helpers/
+│   ├── logger.js
+│   └── stl.js
+└── Hooks/
+    └── useViewerObjects.js
+```
+
+(Los nombres del ejemplo son ilustrativos.)
+
+### `Components/`
+
+- **Un componente por fichero**, sin excepciones. Tampoco se admiten componentes
+  auxiliares pequeños junto a otro.
+- El componente y su fichero se llaman igual y **empiezan por mayúscula**
+  (`PascalCase`): `SpinField` → `SpinField.jsx`, exportado con `export default`.
+- La carpeta se llama `Components`, con mayúscula, igual que todas sus subcarpetas.
+- **Jerarquía que refleja la interfaz.** Si un componente contiene otros que solo
+  usa él, se crea una carpeta con su nombre. Dentro van su fichero y los de sus
+  hijos, que pueden anidarse igual. Así, para encontrar un elemento de la pantalla
+  se sigue su anidamiento visual.
+- El fichero del componente padre vive dentro de su carpeta y se llama como ella
+  (`LeftPanel/LeftPanel.jsx`); no se usa `index.jsx`.
+- **`Components/Misc/`**: los componentes que se reutilizan en varias partes de la
+  interfaz (campos, grupos, acordeón, visor 3D...). Se crea solo si hace falta.
+  Si un componente pasa a usarse desde más de una rama, se mueve a `Misc/`.
+
+### `Helpers/`
+
+- Módulos de funciones sin JSX ni componentes: lógica, geometría, utilidades.
+- Un fichero **puede contener varias funciones**, agrupadas por tema, con exports
+  con nombre.
+- Los ficheros empiezan por **minúscula** (`camelCase`): `stl.js`, `logger.js`,
+  `meshOps.js`.
+- La lógica portada de `_legacy/app/core/` va aquí.
+
+### `Hooks/`
+
+- Hooks propios de React (`useSomething`), al mismo nivel que `Components/` y
+  `Helpers/`.
+- **Un hook por fichero**, que se llama igual que el hook y empieza por `use`
+  (`useViewerObjects.js`), exportado con `export default`. Extensión `.js`: los
+  hooks no devuelven JSX.
+- Pueden importar React y `Helpers/`, pero nunca componentes.
+- Se crea un hook cuando la lógica de estado o de efectos de un componente es
+  reutilizable o hace que el componente supere el tamaño orientativo.
 
 ## Buenas prácticas del proyecto
 
@@ -36,9 +92,10 @@ si una tarea choca con alguna norma, avisa antes de saltártela.
 
 ### Arquitectura
 
-- **Lógica separada de la interfaz.** `src/core/` y `src/mesh/` no importan React ni
+- **Lógica separada de la interfaz.** `src/Helpers/` no importa React ni
   tocan el DOM: son funciones puras que reciben datos y devuelven datos. Los
-  componentes solo gestionan estado y presentación.
+  componentes se ocupan de la presentación; la lógica de estado compleja va en
+  `Hooks/`.
 - **Operaciones pesadas en Web Workers** (split, vaciado, booleanas, exportación),
   para que la interfaz no se bloquee. El componente muestra el progreso y recibe
   el resultado.
@@ -61,7 +118,7 @@ si una tarea choca con alguna norma, avisa antes de saltártela.
 
 ### Tests
 
-- **Vitest para `src/core/` y `src/mesh/`.** Cada función portada de `_legacy/` lleva
+- **Vitest para `src/Helpers/`.** Cada función portada de `_legacy/` lleva
   tests que la comparan con resultados de referencia del programa de Python
   (volúmenes, número de piezas, bounding boxes), con tolerancias explícitas.
 - Cada bug corregido añade un test que lo reproduce.
@@ -268,14 +325,15 @@ original.
 
 ### 18. React / JSX
 
-18.1. Un componente por fichero. Se admiten varios componentes pequeños sin estado
-      en el mismo fichero.
+18.1. Un componente por fichero, sin excepciones. Airbnb admite varios componentes
+      sin estado por fichero; en este proyecto no (ver "Estructura de carpetas").
 18.2. Usa siempre JSX, no `React.createElement`.
 18.3. Usa componentes de función con hooks. La guía original, anterior a los hooks,
       habla de clases; aquí no se usan clases.
 18.4. No uses mixins.
 18.5. Los ficheros de componentes llevan extensión `.jsx` y se nombran en
-      `PascalCase`, igual que el componente.
+      `PascalCase`, igual que el componente. El componente raíz de una carpeta se
+      llama como ella, no `index.jsx`.
 18.6. Las props van en `camelCase` y no reutilizan nombres de atributos DOM para
       otra cosa (`style`, `className`...).
 18.7. En atributos JSX, comillas dobles; en el resto de JS, simples.

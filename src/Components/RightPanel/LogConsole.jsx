@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { logger } from '../logger'
+import { logger } from '../../Helpers/logger'
 
 export default function LogConsole() {
   const [lines, setLines] = useState([])

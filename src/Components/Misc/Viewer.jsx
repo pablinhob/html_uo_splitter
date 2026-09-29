@@ -5,7 +5,7 @@ import {
   BOUNDING_BOX_EDGE_COLOR,
   SPLIT_EDGE_COLOR,
   VIEWER_BACKGROUND_COLOR,
-} from '../config'
+} from '../../config'
 
 const CORNER_BRACKET_FRACTION = 0.12
 const FEATURE_EDGE_ANGLE_DEG = 30
