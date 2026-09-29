@@ -69,6 +69,12 @@ Las dependencias de cada paso se piden antes de instalarlas, según CLAUDE.md.
     los colores en `config.js`. `Helpers/pixelArt.js` los convierte en rectángulos
     (probado en `pixelArt.test.js`).
   - El botón "CHIP IN FOR WAX" enlaza a `DONATION_URL` (`config.js`).
+- **Aristas vivas en el visor.** Antes, las normales se promediaban en todos los
+  vértices compartidos, y las aristas de corte de las piezas se veían redondeadas con
+  una sombra. Ahora `geometryFromMeshData` usa `toCreasedNormals` de three.js: el
+  sombreado es suave entre caras casi coplanarias y la arista queda viva por encima
+  de `SHADING_CREASE_ANGLE_DEG` (30°, igual que las aristas dibujadas). Lo comprueba
+  `meshData.test.js`.
 - **Consola de log** a la mitad de alto (75 px).
 
 ---

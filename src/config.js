@@ -91,6 +91,9 @@ export const GHOST_COLOR = '#808080';
 export const GHOST_OPACITY = 0.1;
 export const CORNER_BRACKET_FRACTION = 0.12;
 export const FEATURE_EDGE_ANGLE_DEG = 30;
+// Sombreado: las caras que se encuentran con más ángulo que este se ven con arista
+// viva (normales separadas); por debajo se suavizan. Igual que las aristas dibujadas.
+export const SHADING_CREASE_ANGLE_DEG = FEATURE_EDGE_ANGLE_DEG;
 export const VIEWER_FOV_DEG = 30;
 export const VIEWER_SKY_LIGHT = { skyColor: 0xffffff, groundColor: 0x444444, intensity: 1.2 };
 export const VIEWER_HEADLIGHT_INTENSITY = 1.8;
