@@ -7,3 +7,6 @@ package-lock.json
 .vscode/
 .devcontainer/
 docker-compose.yml
+
+# Datos de referencia generados por tools/reference (JSON escrito por Python)
+tests/fixtures/reference/

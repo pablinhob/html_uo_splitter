@@ -106,3 +106,7 @@ export const EXPORT_FORMATS = [
   { label: 'OBJ', fileType: 'obj', suffix: '.obj', colors: true },
   { label: '3MF', fileType: '3mf', suffix: '.3mf', colors: false },
 ];
+
+// Reparación de mallas no cerradas: distancia máxima (mm) a la que se fusionan
+// vértices de aristas abiertas si la tolerancia por defecto de manifold no basta.
+export const MESH_REPAIR_TOLERANCE_MM = 0.01;

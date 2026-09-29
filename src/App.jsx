@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { DEFAULT_PLUGS, DEFAULT_SPLIT, NOT_MIGRATED_MESSAGE } from './config';
 import logger from './Helpers/logger';
 import useBoardFile from './Hooks/useBoardFile';
+import useGeometryWorker from './Hooks/useGeometryWorker';
 import useExportDialog from './Hooks/useExportDialog';
 import usePiecesWorkflow from './Hooks/usePiecesWorkflow';
 import useViewerObjects from './Hooks/useViewerObjects';
@@ -11,7 +12,8 @@ import RightPanel from './Components/RightPanel/RightPanel';
 
 // Ventana principal (main_window.py): une el estado de la app con los paneles.
 export default function App() {
-  const board = useBoardFile();
+  const geometryWorker = useGeometryWorker();
+  const board = useBoardFile(geometryWorker);
   const workflow = usePiecesWorkflow(board.mesh);
   const exportDialog = useExportDialog(workflow.pieces);
   const [plugs, setPlugs] = useState(DEFAULT_PLUGS);

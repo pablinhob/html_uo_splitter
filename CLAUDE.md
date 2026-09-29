@@ -35,9 +35,15 @@ src/
 ├── Helpers/
 │   ├── logger.js
 │   ├── stl.js
-│   └── stl.test.js
+│   ├── stl.test.js
+│   └── geometryWorker.js  # entrada del Web Worker de geometría
 └── Hooks/
     └── useViewerObjects.js
+tests/
+├── fixtures/models/       # STL de ejemplo (copiados de _legacy/)
+├── fixtures/reference/    # resultados del programa Python (JSON)
+└── support/               # utilidades compartidas por los tests
+tools/reference/           # script Python que genera fixtures/reference/
 ```
 
 (Los nombres del ejemplo son ilustrativos.)
@@ -108,6 +114,14 @@ src/
 - **Operaciones pesadas en Web Workers** (split, vaciado, booleanas, exportación),
   para que la interfaz no se bloquee. El componente muestra el progreso y recibe
   el resultado.
+  - Toda la geometría pasa por un único Worker (`Helpers/geometryWorker.js`) al que la
+    interfaz llama con `useGeometryWorker().request(type, payload)`.
+  - Cada operación nueva se añade como manejador en `Helpers/geometryService.js`,
+    que se prueba sin Worker.
+  - Las mallas viajan como `meshData` (`{ positions, index }`, arrays tipados), y se
+    transfieren en lugar de copiarse.
+  - El Worker conserva el `Manifold` de la tabla cargada: no se reenvía en cada
+    petición.
 - **Sin números mágicos.** Toda constante de configuración (rangos, valores por
   defecto, colores, tolerancias) va en `src/config.js`.
 
@@ -122,6 +136,9 @@ src/
   copias (spread) y funciones de actualización.
 - **Liberar recursos de three.js.** Toda geometría, material o textura que deja de
   usarse se libera con `dispose()`; queda claro quién es su dueño.
+- **Liberar memoria WASM.** Los `Manifold`, `Mesh` y `CrossSection` de manifold-3d no
+  los recoge el recolector de basura: quien los crea los libera con `delete()`,
+  también los intermedios de las booleanas y en los tests.
 - **Tamaño orientativo**: unas 50 líneas por función y 300 por fichero. Si se superan,
   dividir.
 
@@ -133,6 +150,12 @@ src/
 - Los tests van junto al fichero que prueban (`stl.js` → `stl.test.js`) y no dependen
   de `_legacy/`, que no está en el repositorio: los datos que necesiten se copian
   a una carpeta del proyecto o se generan en el propio test.
+- **Datos de referencia:** `tools/reference/generate_reference.py` ejecuta el `core/`
+  original y escribe `tests/fixtures/reference/<modelo>.json`.
+  - Se lanza en el Mac con el venv de `_legacy/`, porque ese venv no funciona en el
+    contenedor.
+  - Cada paso añade su sección al script. Los tests que comparan con Python se
+    saltan (`it.skipIf`) mientras no exista el JSON.
 - Cada bug corregido añade un test que lo reproduce.
 
 ### Git

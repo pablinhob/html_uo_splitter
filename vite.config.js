@@ -5,6 +5,8 @@ export default defineConfig({
   plugins: [react()],
   // Rutas relativas: el build estático (dist/) funciona desde cualquier carpeta
   base: './',
+  // Los Workers se crean con { type: 'module' } (useGeometryWorker.js)
+  worker: { format: 'es' },
   server: {
     host: true,
     port: 5555,

@@ -153,7 +153,8 @@ const codeRules = {
       pathGroupOverrides: [{ pattern: 'three/addons/**', action: 'ignore' }],
     },
   ],
-  'import/no-unresolved': ['error', { ignore: ['^three/addons/'] }],
+  // `?url` es una importación de Vite: devuelve la URL del fichero, no un módulo.
+  'import/no-unresolved': ['error', { ignore: ['^three/addons/', '\\?url$'] }],
   'import/newline-after-import': 'error',
 };
 
