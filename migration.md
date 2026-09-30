@@ -120,6 +120,24 @@ Las dependencias de cada paso se piden antes de instalarlas, según CLAUDE.md.
   - Exportar se habilita mientras la última previsualización sea la de la pieza y los
     parámetros actuales (estado derivado en `usePiecesWorkflow`).
 - **Consola de log** a la mitad de alto (75 px).
+- **Asistente de pasos en lugar del acordeón** (`LeftPanel/StepWizard/`). Con el
+  acordeón se podían cerrar todos los pasos y no se veía en cuál estabas.
+  - Arriba, un indicador con los tres pasos unidos por una línea: hecho (✓), actual
+    (resaltado) o bloqueado. Los pasos habilitados se pueden pulsar para saltar.
+  - Solo se ve el paso actual, con "Step N of 3" y su título. Sin tabla cargada no
+    hay paso actual y se muestra un aviso.
+  - Abajo, "← anterior" y "siguiente →" con el nombre del paso de destino. En el
+    paso 2 el botón es "Split →": lanza el split, que al terminar abre el paso 3.
+    Sustituye a "Continue" y a "Split base polygons".
+  - En el paso 3, el último "siguiente" es "Export hollowing →", en lugar del botón
+    que había junto a "Preview part hollowing". Se habilita en el mismo caso que antes.
+  - "Polygon hollowing actions" se ve siempre en el paso 3, deshabilitado (el
+    `fieldset` con `disabled`) hasta seleccionar una pieza del núcleo. Debajo del árbol
+    se explica por qué, también si no hay nada seleccionado.
+  - Con "all" seleccionado (`isAllSelected` en `pieces.js`) se pueden ajustar los
+    sliders y exportar sin previsualizar, porque la exportación vacía todas las
+    piezas. "Preview part hollowing" sigue necesitando una pieza del núcleo.
+  - Mientras hay una operación en curso, la navegación se deshabilita.
 
 ---
 

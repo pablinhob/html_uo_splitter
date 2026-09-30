@@ -1,9 +1,9 @@
 import { CUTLAP_WIDTH_MM, PIECE_RADIUS_MM, SPLIT_SHAPES, STRINGER_WIDTH_MM } from '../../config';
 import SliderField from '../Misc/SliderField';
 
-// split: { value, onChange, onExecute }
-export default function SplitterParametrizationPanel({ split, busy }) {
-  const { value, onChange, onExecute } = split;
+// split: { value, onChange }. El split se lanza desde la navegación del asistente.
+export default function SplitterParametrizationPanel({ split }) {
+  const { value, onChange } = split;
   const set = (field) => (next) => onChange({ ...value, [field]: next });
   return (
     <div className="panel">
@@ -36,9 +36,6 @@ export default function SplitterParametrizationPanel({ split, busy }) {
         onChange={set('cutlapWidthMm')}
         unit=" mm"
       />
-      <button type="button" onClick={onExecute} disabled={busy}>
-        Split base polygons
-      </button>
     </div>
   );
 }

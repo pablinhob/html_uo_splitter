@@ -6,6 +6,7 @@
   --border: #c8c8cc;
   --accent: #0a64d8;
   --accent-soft: #dbe8fb;
+  --on-accent: #ffffff;
   --control-bg: #ffffff;
 
   color-scheme: light dark;
@@ -276,39 +277,149 @@ p {
   color: var(--muted);
 }
 
-/* ------------------------------------------------------------ Acordeón */
+/* ------------------------------------------------------------ Asistente de pasos */
 
-.accordion {
+.step-wizard {
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--surface);
 }
 
-.accordion-header {
+.step-indicator {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  text-align: left;
-  font-weight: 600;
-  padding: 8px 10px;
-}
-
-.accordion-header .arrow {
-  font-size: 10px;
-  width: 10px;
-}
-
-.accordion.expanded .accordion-header {
+  margin: 0;
+  padding: 12px 6px 10px;
+  list-style: none;
   border-bottom: 1px solid var(--border);
-  border-radius: 6px 6px 0 0;
 }
 
-.accordion-body {
+.step-indicator-item {
+  position: relative;
+  flex: 1;
+}
+
+/* Línea que une cada círculo con el anterior */
+.step-indicator-item + .step-indicator-item::before {
+  content: '';
+  position: absolute;
+  top: 13px;
+  right: calc(50% + 18px);
+  left: calc(-50% + 18px);
+  height: 2px;
+  background: var(--border);
+}
+
+.step-indicator-item.done + .step-indicator-item::before {
+  background: var(--accent);
+}
+
+.step-indicator-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+}
+
+.step-indicator-button:disabled {
+  opacity: 1;
+}
+
+.step-indicator-circle {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  background: var(--control-bg);
+  font-weight: 600;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.step-indicator-button:hover:not(:disabled) .step-indicator-circle {
+  border-color: var(--accent);
+}
+
+.step-indicator-item.done .step-indicator-circle {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.step-indicator-item.current .step-indicator-circle {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.step-indicator-item.current .step-indicator-label {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.step-indicator-button:disabled .step-indicator-circle,
+.step-indicator-button:disabled .step-indicator-label {
+  opacity: 0.45;
+}
+
+.step-indicator-item.current .step-indicator-button:disabled .step-indicator-circle,
+.step-indicator-item.current .step-indicator-button:disabled .step-indicator-label {
+  opacity: 1;
+}
+
+.step-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 10px 10px 0;
+  font-size: 1.05em;
+}
+
+.step-count {
+  color: var(--muted);
+  font-size: 0.8em;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.step-body {
   padding: 10px;
+}
+
+.step-placeholder {
+  padding: 14px 10px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.step-navigation {
+  display: flex;
+  gap: 6px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--border);
+}
+
+.step-next {
+  margin-left: auto;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+.step-next:hover:not(:disabled) {
+  filter: brightness(1.1);
 }
 
 .panel {
@@ -327,6 +438,11 @@ p {
   padding: 8px 10px 10px;
   border: 1px solid var(--border);
   border-radius: 6px;
+}
+
+.group-box:disabled legend,
+.group-box:disabled .slider-field {
+  opacity: 0.45;
 }
 
 .group-box legend {

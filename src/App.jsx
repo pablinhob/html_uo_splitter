@@ -15,9 +15,9 @@ import RightPanel from './Components/RightPanel/RightPanel';
 export default function App() {
   const geometryWorker = useGeometryWorker();
   const board = useBoardFile(geometryWorker);
-  // Sección abierta del acordeón: 'plugs' | 'split' | 'pieces' | null
-  const [expanded, setExpanded] = useState(null);
-  const workflow = usePiecesWorkflow(geometryWorker, board.mesh, () => setExpanded('pieces'));
+  // Paso actual del asistente: 'plugs' | 'split' | 'pieces' | null (sin tabla)
+  const [currentStep, setCurrentStep] = useState(null);
+  const workflow = usePiecesWorkflow(geometryWorker, board.mesh, () => setCurrentStep('pieces'));
   const [plugs, setPlugs] = useState(DEFAULT_PLUGS);
   const [split, setSplit] = useState(DEFAULT_SPLIT);
   const exportParams = { hollow: workflow.hollow, plugs };
@@ -27,9 +27,9 @@ export default function App() {
   const opening = useBoardOpening(board, {
     onStart: () => {
       workflow.reset();
-      setExpanded(null);
+      setCurrentStep(null);
     },
-    onLoaded: () => setExpanded('plugs'),
+    onLoaded: () => setCurrentStep('plugs'),
   });
 
   const isBusy = board.isBusy || workflow.isBusy;
@@ -41,8 +41,8 @@ export default function App() {
         <LeftPanel
           file={{ fileName: board.fileName, stats: board.stats, onOpenSTL: opening.onFileInput }}
           steps={{
-            expanded,
-            onExpandedChange: setExpanded,
+            currentStep,
+            onStepChange: setCurrentStep,
             hasMesh: Boolean(board.mesh),
             hasPieces: workflow.pieces.length > 0,
             isBusy,

@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { BOARD_COLOR, CUTLAP_COLOR, STRINGER_COLOR } from '../config';
-import { buildPiecesTree, classifyPiece, matchesSelection, pieceColor, pieceLabel } from './pieces';
+import {
+  ALL_KEY,
+  buildPiecesTree,
+  classifyPiece,
+  isAllSelected,
+  matchesSelection,
+  pieceColor,
+  pieceLabel,
+} from './pieces';
 
 // Claves en el mismo orden en que las genera split_board() de mesh_ops.py.
 const pieceKeys = [
@@ -44,6 +52,15 @@ describe('classifyPiece', () => {
     [['a', 3], 'core'],
   ])('%j → %s', (key, category) => {
     expect(classifyPiece(key)).toBe(category);
+  });
+});
+
+describe('isAllSelected', () => {
+  it('solo es cierto con la selección "all"', () => {
+    expect(isAllSelected(ALL_KEY)).toBe(true);
+    expect(isAllSelected(null)).toBe(false);
+    expect(isAllSelected(['a'])).toBe(false);
+    expect(isAllSelected(['a', 3])).toBe(false);
   });
 });
 

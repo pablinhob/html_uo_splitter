@@ -9,6 +9,10 @@ export const ALL_KEY = ['all'];
 
 export const keyId = (key) => key.join('|');
 
+// La selección es "all" (toda la tabla): no hay pieza que previsualizar, pero sí se
+// pueden ajustar los parámetros de vaciado y exportar todas las piezas.
+export const isAllSelected = (key) => Boolean(key) && keyId(key) === keyId(ALL_KEY);
+
 export function classifyPiece(key) {
   if (!key) return 'none';
   if (keyId(key) === 'all') return 'group';

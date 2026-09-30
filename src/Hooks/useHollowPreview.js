@@ -10,7 +10,7 @@ function logHollowing(key, { wallMm, topMm, bottomMm, holePct }) {
 }
 
 /**
- * "Preview hollowing" (on_apply_hollow de main_window.py): vacía en el Worker la
+ * "Preview part hollowing" (on_apply_hollow de main_window.py): vacía en el Worker la
  * pieza seleccionada y sustituye su malla en el visor, con el hueco de los plugs y
  * sus soportes, como al exportar. `applyHollow(key, hollow, plugs)` devuelve true
  * si ha ido bien; `isHollowing` mientras corre.

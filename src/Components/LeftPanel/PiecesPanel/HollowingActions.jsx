@@ -2,12 +2,16 @@ import { BOTTOM_WIDTH_MM, HOLE_RADIUS_PCT, TOP_WIDTH_MM, WALL_WIDTH_MM } from '.
 import GroupBox from '../../Misc/GroupBox';
 import SliderField from '../../Misc/SliderField';
 
-// pieces: las mismas props que recibe PiecesPanel
-export default function HollowingActions({ pieces }) {
-  const { hollow, onHollowChange, onApply, onExport, exportEnabled } = pieces;
+/**
+ * pieces: las mismas props que recibe PiecesPanel.
+ * isDisabled: la selección no admite vaciado (todo el grupo deshabilitado).
+ * isPreviewDisabled: no hay una pieza concreta que previsualizar (p. ej. "all").
+ */
+export default function HollowingActions({ pieces, isDisabled, isPreviewDisabled }) {
+  const { hollow, onHollowChange, onApply } = pieces;
   const set = (field) => (next) => onHollowChange({ ...hollow, [field]: next });
   return (
-    <GroupBox title="Polygon hollowing actions">
+    <GroupBox title="Polygon hollowing actions" isDisabled={isDisabled}>
       <SliderField
         label="Wall width"
         range={WALL_WIDTH_MM}
@@ -41,14 +45,9 @@ export default function HollowingActions({ pieces }) {
         onChange={set('holePct')}
         unit=" %"
       />
-      <div className="button-row">
-        <button type="button" onClick={onApply}>
-          Preview hollowing
-        </button>
-        <button type="button" onClick={onExport} disabled={!exportEnabled}>
-          Export Hollowing
-        </button>
-      </div>
+      <button type="button" onClick={onApply} disabled={isPreviewDisabled}>
+        Preview part hollowing
+      </button>
     </GroupBox>
   );
 }

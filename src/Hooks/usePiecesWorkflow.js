@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { DEFAULT_HOLLOW } from '../config';
 import logger from '../Helpers/logger';
-import { ALL_KEY, pieceLabel } from '../Helpers/pieces';
+import { ALL_KEY, isAllSelected, pieceLabel } from '../Helpers/pieces';
 import useBoardSplit from './useBoardSplit';
 import useHollowPreview from './useHollowPreview';
 import usePieceGeometries from './usePieceGeometries';
@@ -23,6 +23,7 @@ export default function usePiecesWorkflow(geometryWorker, mesh, onShowPieces) {
   const [hollow, setHollow] = useState(DEFAULT_HOLLOW);
   // Última previsualización aplicada: exportar exige que sea la de la pieza y los
   // parámetros actuales (cualquier cambio de selección o de vaciado la deja vieja).
+  // Con "all" seleccionado se exporta sin previsualizar.
   const [appliedPreview, setAppliedPreview] = useState(null);
   const { split, isSplitting, splitPlugs } = useBoardSplit(geometryWorker, mesh, geometries, () => {
     setSelectedPiece(ALL_KEY);
@@ -40,7 +41,9 @@ export default function usePiecesWorkflow(geometryWorker, mesh, onShowPieces) {
     pieceKeys: geometries.pieces.map((piece) => piece.key),
     selected: selectedPiece,
     hollow,
-    exportEnabled: appliedPreview?.key === selectedPiece && appliedPreview?.hollow === hollow,
+    exportEnabled:
+      isAllSelected(selectedPiece) ||
+      (appliedPreview?.key === selectedPiece && appliedPreview?.hollow === hollow),
     onSelect: (key, label) => {
       setSelectedPiece(key);
       logger.info(`Showing: ${label}`);
