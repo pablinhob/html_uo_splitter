@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { EXAMPLE_MODELS, EXAMPLE_PREVIEW_SIZE_PX } from '../../src/config';
+import { BRAND, EXAMPLE_MODELS, EXAMPLE_PREVIEW_SIZE_PX } from '../../src/config';
 import { meshFaceCount } from '../../src/Helpers/meshData';
 import { parseSTL } from '../../src/Helpers/stl';
 
@@ -23,5 +23,14 @@ describe.each(EXAMPLE_MODELS)('ejemplo $label', ({ path, previewPath }) => {
     // Ancho y alto están en el chunk IHDR, justo después de la firma.
     expect(png.readUInt32BE(16)).toBe(EXAMPLE_PREVIEW_SIZE_PX);
     expect(png.readUInt32BE(20)).toBe(EXAMPLE_PREVIEW_SIZE_PX);
+  });
+});
+
+describe('imagen de marca', () => {
+  it('el logo de la cabecera y el favicon están en public/', () => {
+    const logo = readFileSync(publicFile(BRAND.logoPath));
+    // Firma PNG: 0x89 seguido de "PNG".
+    expect(logo.toString('latin1', 1, 4)).toBe('PNG');
+    expect(existsSync(publicFile('favicon.ico'))).toBe(true);
   });
 });

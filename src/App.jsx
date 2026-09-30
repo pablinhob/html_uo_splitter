@@ -6,6 +6,7 @@ import useGeometryWorker from './Hooks/useGeometryWorker';
 import useExportDialog from './Hooks/useExportDialog';
 import usePiecesWorkflow from './Hooks/usePiecesWorkflow';
 import useViewerObjects from './Hooks/useViewerObjects';
+import AppHeader from './Components/AppHeader';
 import ExportDialog from './Components/ExportDialog';
 import LeftPanel from './Components/LeftPanel/LeftPanel';
 import RightPanel from './Components/RightPanel/RightPanel';
@@ -39,24 +40,27 @@ export default function App() {
   };
 
   return (
-    <div className={`app${isBusy ? ' busy' : ''}`}>
-      <LeftPanel
-        file={{ fileName: board.fileName, stats: board.stats, onOpenSTL: opening.onFileInput }}
-        steps={{
-          expanded,
-          onExpandedChange: setExpanded,
-          hasMesh: Boolean(board.mesh),
-          hasPieces: workflow.pieces.length > 0,
-          isBusy,
-        }}
-        plugs={{ value: plugs, onChange: setPlugs }}
-        split={{ value: split, onChange: setSplit, onExecute: onSplit }}
-        pieces={{ ...workflow.panel, onExport: exportDialog.open }}
-      />
-      <RightPanel
-        viewerObjects={viewerObjects}
-        example={{ isVisible: !board.mesh && !board.isBusy, onOpen: opening.openExample }}
-      />
+    <div className={`app-shell${isBusy ? ' busy' : ''}`}>
+      <AppHeader />
+      <div className="app">
+        <LeftPanel
+          file={{ fileName: board.fileName, stats: board.stats, onOpenSTL: opening.onFileInput }}
+          steps={{
+            expanded,
+            onExpandedChange: setExpanded,
+            hasMesh: Boolean(board.mesh),
+            hasPieces: workflow.pieces.length > 0,
+            isBusy,
+          }}
+          plugs={{ value: plugs, onChange: setPlugs }}
+          split={{ value: split, onChange: setSplit, onExecute: onSplit }}
+          pieces={{ ...workflow.panel, onExport: exportDialog.open }}
+        />
+        <RightPanel
+          viewerObjects={viewerObjects}
+          example={{ isVisible: !board.mesh && !board.isBusy, onOpen: opening.openExample }}
+        />
+      </div>
       <ExportDialog dialog={exportDialog} />
     </div>
   );

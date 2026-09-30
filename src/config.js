@@ -133,6 +133,18 @@ export const EXAMPLE_MODELS = [
 // Previews de los ejemplos: PNG cuadrado de este lado (px).
 export const EXAMPLE_PREVIEW_SIZE_PX = 256;
 
+// Cabecera con la imagen de Ula Ola (misma línea que la web principal). El logo "UO"
+// es img/logos/blanco_transparente_recortado.png de la web antigua
+// (github.com/pablinhob/ulaolaweb): blanco sobre transparente, para fondo oscuro.
+// TODO: poner la URL de la web principal; sin ella, la marca no es un enlace.
+export const BRAND = {
+  name: 'Ula Ola',
+  tagline: 'Unusual surf',
+  logoPath: 'brand/ulaola-logo.png',
+  siteURL: '',
+  appPath: '~/software/uo-splitter',
+};
+
 // Banner de donaciones al pie del panel izquierdo.
 // TODO: poner el enlace real de la página de donaciones.
 export const DONATION_URL = '';

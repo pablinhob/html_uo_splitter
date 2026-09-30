@@ -75,6 +75,19 @@ Las dependencias de cada paso se piden antes de instalarlas, según CLAUDE.md.
   sombreado es suave entre caras casi coplanarias y la arista queda viva por encima
   de `SHADING_CREASE_ANGLE_DEG` (30°, igual que las aristas dibujadas). Lo comprueba
   `meshData.test.js`.
+- **Cabecera con la imagen de Ula Ola** (`Components/AppHeader.jsx`). Es una barra de
+  40 px con la misma línea que la web principal (repositorio `ulaolaweb_new`, fichero
+  `index_hacker.css`): fondo negro y línea verde neón `#39ff14`.
+  - A la izquierda van el logo "UO", una línea fina y el lema "Ula Ola – Unusual surf".
+    El texto es blanco y usa una tipografía geométrica (Futura o Avenir) que acompaña
+    al logo.
+  - A la derecha, la ruta de la app en mono con un cursor de terminal.
+  - Los datos están en `BRAND` (`config.js`).
+  - El logo y el favicon salen de la web antigua (repositorio `ulaolaweb`):
+    `img/logos/blanco_transparente_recortado.png` pasa a
+    `public/brand/ulaola-logo.png` y `favicon.ico` a `public/`. Si falta el logo, se
+    oculta y el log lo avisa. Un test comprueba que los dos ficheros están.
+  - No se cargan fuentes externas: se usa la primera de cada lista que esté instalada.
 - **Consola de log** a la mitad de alto (75 px).
 
 ---
