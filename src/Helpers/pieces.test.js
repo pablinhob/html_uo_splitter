@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BOARD_COLOR, CUTLAP_COLOR, STRINGER_COLOR } from '../config';
-import { buildPiecesTree, classifyPiece, matchesSelection, pieceColor } from './pieces';
+import { buildPiecesTree, classifyPiece, matchesSelection, pieceColor, pieceLabel } from './pieces';
 
 // Claves en el mismo orden en que las genera split_board() de mesh_ops.py.
 const pieceKeys = [
@@ -61,5 +61,16 @@ describe('pieceColor', () => {
     expect(pieceColor(['stringer'])).toBe(STRINGER_COLOR);
     expect(pieceColor(['a', 'cutlap', 0])).toBe(CUTLAP_COLOR);
     expect(pieceColor(['a', 0])).toBe(BOARD_COLOR);
+  });
+});
+
+describe('pieceLabel', () => {
+  it('da la etiqueta del árbol, la misma que al pinchar en la lista', () => {
+    const tree = buildPiecesTree(pieceKeys);
+    const side = tree.find((node) => node.label === 'Side A');
+    const [firstSplit] = side.children.filter((node) => node.children.length === 0);
+    expect(pieceLabel(pieceKeys, firstSplit.key)).toBe(firstSplit.label);
+    expect(pieceLabel(pieceKeys, ['stringer'])).toBe('Stringer');
+    expect(pieceLabel(pieceKeys, ['z', 9])).toBe('z|9');
   });
 });

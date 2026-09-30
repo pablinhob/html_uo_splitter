@@ -1,8 +1,10 @@
 import * as THREE from 'three';
+import { MeshBVH } from 'three-mesh-bvh';
 import {
   BOUNDING_BOX_EDGE_COLOR,
   CORNER_BRACKET_FRACTION,
   FEATURE_EDGE_ANGLE_DEG,
+  PIECE_HOVER_EMISSIVE_COLOR,
   SPLIT_EDGE_COLOR,
   VIEWER_FAR_FACTOR,
   VIEWER_NEAR_FACTOR,
@@ -46,7 +48,7 @@ export function buildCornerBrackets(box) {
   return brackets;
 }
 
-function buildMesh({ geometry, color, opacity = 1, visible = true }) {
+function buildMesh({ geometry, color, opacity = 1, visible = true, pickKey = null }) {
   const mesh = new THREE.Mesh(
     geometry,
     new THREE.MeshPhongMaterial({
@@ -58,6 +60,7 @@ function buildMesh({ geometry, color, opacity = 1, visible = true }) {
     }),
   );
   mesh.visible = visible;
+  mesh.userData.pickKey = pickKey;
   return mesh;
 }
 
@@ -126,4 +129,41 @@ export function disposeObject(object) {
     if (child.userData.ownsGeometry) child.geometry?.dispose();
     child.material?.dispose();
   });
+}
+
+// Mallas opacas visibles: las que el ratón puede tocar (el fantasma no tapa).
+const solidVisibleMeshes = (content) =>
+  content.children.filter((child) => child.isMesh && child.visible && child.material.opacity >= 1);
+
+// BVH de cada geometría para el raycast, creado la primera vez que se necesita.
+// `indirect` evita que MeshBVH añada un índice a la geometría, que es del llamante.
+const bvhByGeometry = new WeakMap();
+
+function bvhOf(geometry) {
+  if (!bvhByGeometry.has(geometry)) {
+    bvhByGeometry.set(geometry, new MeshBVH(geometry, { indirect: true }));
+  }
+  return bvhByGeometry.get(geometry);
+}
+
+/**
+ * Malla seleccionable bajo el rayo (en coordenadas de la escena), o null. Solo
+ * cuenta el primer objeto opaco que toca: si es una pieza con `pickKey`, esa es la
+ * elegida. Las mallas del visor no tienen transformación propia, así que el rayo
+ * vale tal cual en el espacio de cada geometría.
+ */
+export function pickedMesh(ray, content) {
+  const hits = solidVisibleMeshes(content)
+    .map((mesh) => ({ mesh, hit: bvhOf(mesh.geometry).raycastFirst(ray, THREE.DoubleSide) }))
+    .filter(({ hit }) => hit);
+  const nearest = hits.reduce(
+    (best, candidate) => (!best || candidate.hit.distance < best.hit.distance ? candidate : best),
+    null,
+  );
+  return nearest?.mesh.userData.pickKey ? nearest.mesh : null;
+}
+
+// Tiñe (o deja de teñir) la pieza bajo el ratón para indicar que se puede pinchar.
+export function setMeshHighlight(mesh, isHighlighted) {
+  mesh.material.emissive.set(isHighlighted ? PIECE_HOVER_EMISSIVE_COLOR : 0x000000);
 }

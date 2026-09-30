@@ -14,14 +14,19 @@ const outlineObjects = (outlines, selection) =>
 
 function pieceObjects(mesh, pieces, outlines, selectedPiece) {
   const selection = selectedPiece ?? ALL_KEY;
-  const objects = pieces.map(({ key, geometry }) => ({
-    key: keyId(key),
-    geometry,
-    color: pieceColor(key),
-    visible: matchesSelection(selection, key),
-    edges: true,
-    frame: true,
-  }));
+  // Se puede pinchar cualquier pieza visible salvo la que ya está seleccionada.
+  const objects = pieces.map(({ key, geometry }) => {
+    const visible = matchesSelection(selection, key);
+    return {
+      key: keyId(key),
+      geometry,
+      color: pieceColor(key),
+      visible,
+      edges: true,
+      frame: true,
+      pickKey: visible && keyId(key) !== keyId(selection) ? key : null,
+    };
+  });
   objects.push(...outlineObjects(outlines, selection));
   if (mesh && keyId(selection) !== 'all') {
     objects.push({ key: 'ghost', geometry: mesh, color: GHOST_COLOR, opacity: GHOST_OPACITY });
@@ -33,24 +38,27 @@ function pieceObjects(mesh, pieces, outlines, selectedPiece) {
  * Objetos que muestra el visor principal (equivale a show_trimesh / show_pieces
  * + set_piece_selection + set_plug_markers de viewer.py): la tabla sola o, si ya
  * hay piezas, las piezas seleccionadas con el contorno fantasma de la tabla
- * original; encima, los marcadores de los plugs, que no mueven la cámara.
+ * original; encima, los marcadores de los plugs, que no mueven la cámara. Tras el
+ * split, las piezas ya llevan el hueco de los plugs y los marcadores se ocultan;
+ * vuelven si se cambian los plugs, hasta el siguiente split.
  * scene: { geometryWorker, board (useBoardFile), workflow (usePiecesWorkflow), plugs }
  */
 export default function useViewerObjects(scene) {
   const { geometryWorker, board, workflow, plugs } = scene;
   const { mesh } = board;
-  const { pieces, outlines, selectedPiece } = workflow;
+  const { pieces, outlines, selectedPiece, splitPlugs } = workflow;
   const markers = usePlugMarkers(geometryWorker, mesh, plugs);
+  const areMarkersShown = pieces.length === 0 || splitPlugs !== plugs;
   return useMemo(() => {
     const boardObjects =
       pieces.length > 0
         ? pieceObjects(mesh, pieces, outlines, selectedPiece)
         : [mesh && { key: 'board', geometry: mesh, color: BOARD_COLOR, frame: true }];
-    const markerObjects = markers.map((geometry, index) => ({
+    const markerObjects = (areMarkersShown ? markers : []).map((geometry, index) => ({
       key: `plug-marker-${index}`,
       geometry,
       color: PLUG_MARKER_COLOR,
     }));
     return [...boardObjects, ...markerObjects].filter(Boolean);
-  }, [mesh, pieces, outlines, selectedPiece, markers]);
+  }, [mesh, pieces, outlines, selectedPiece, markers, areMarkersShown]);
 }

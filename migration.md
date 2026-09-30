@@ -95,6 +95,30 @@ Las dependencias de cada paso se piden antes de instalarlas, según CLAUDE.md.
     `public/brand/ulaola-logo.png` y `favicon.ico` a `public/`. Si falta el logo, se
     oculta y el log lo avisa. Un test comprueba que los dos ficheros están.
   - No se cargan fuentes externas: se usa la primera de cada lista que esté instalada.
+- **Plugs restados en el split.** En Python las cavidades de los plugs solo se restaban
+  al exportar, así que tras el split los marcadores seguían encima como una pieza más.
+  - La petición `split` recibe los plugs y devuelve las piezas con el hueco de las
+    cavidades, con el mismo margen que la exportación (`SUBTRACTION_MARGIN_MM`).
+  - La tienda del Worker guarda las piezas sin restar: el vaciado y la exportación
+    no cambian, y siguen validados frente a Python.
+  - La previsualización del vaciado (`hollowPiece` con `plugs`) es la pieza final de
+    la exportación: vaciada, con las cavidades restadas y unida a sus soportes
+    (`buildPreviewPiece` en `exportPieces.js`).
+  - Tras el split se ocultan los marcadores. Si se cambian los plugs, vuelven a verse
+    hasta el siguiente Execute.
+  - La resta compartida está en `plugSolids.js` (`subtractPlugCavities`), y
+    `hollowStoredPiece` pasa a su propio módulo. Lo comprueba `splitRequest.test.js`.
+- **Seleccionar piezas pinchando en el visor.**
+  - Con las piezas visibles, la que está bajo el ratón y se puede seleccionar se tiñe
+    de azul (`PIECE_HOVER_EMISSIVE_COLOR`) y el cursor pasa a mano.
+  - Un clic sin arrastre hace lo mismo que pinchar la pieza en la lista, y abre el
+    paso 3. Si el puntero se mueve más de `PICK_CLICK_TOLERANCE_PX`, cuenta como un
+    giro de cámara.
+  - `Hooks/useViewerPicking.js` gestiona los eventos. `pickedMesh` (en
+    `viewerScene.js`) lanza el rayo con three-mesh-bvh; el fantasma translúcido no
+    tapa las piezas. Lo comprueba `viewerScene.test.js`.
+  - Exportar se habilita mientras la última previsualización sea la de la pieza y los
+    parámetros actuales (estado derivado en `usePiecesWorkflow`).
 - **Consola de log** a la mitad de alto (75 px).
 
 ---
@@ -230,8 +254,9 @@ single fin, twin fin (Futures) y sus soportes.
 - Worker: petición `plugMarkers`. `Hooks/usePlugMarkers.js` la lanza al cambiar la
   tabla o cualquier parámetro, descarta las respuestas atrasadas y libera las
   geometrías que sustituye. Los marcadores verdes no mueven la cámara.
-- Diferencia con el original: los marcadores siguen visibles tras el split. Python
-  los borraba al mostrar las piezas y los volvía a pintar al tocar un parámetro.
+- Los marcadores se ocultan tras el split, como en Python, que los borraba al mostrar
+  las piezas y los volvía a pintar al tocar un parámetro (ver "Plugs restados en el
+  split" en "Añadidos fuera del plan").
 - Constantes (holguras, medidas Futures, protrusiones) en `config.js`.
 - Comparado con Python en los tres modelos, con single y twin fin: volúmenes (< 1 %)
   y bounding boxes (< 0,2 mm) de marcadores, cavidades a restar y soportes.

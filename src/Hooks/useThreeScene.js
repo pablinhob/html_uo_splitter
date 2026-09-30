@@ -28,7 +28,8 @@ function createScene() {
 
 /**
  * Crea el renderer de three.js dentro del contenedor y lo mantiene vivo mientras
- * el componente esté montado. Devuelve una ref con { camera, controls, content }:
+ * el componente esté montado. Devuelve una ref con
+ * { canvas, camera, controls, content }:
  * `content` es el grupo donde el visor coloca sus objetos.
  */
 export default function useThreeScene(containerRef) {
@@ -59,7 +60,7 @@ export default function useThreeScene(containerRef) {
       controls.update();
       renderer.render(scene, camera);
     });
-    sceneRef.current = { camera, controls, content, framedBox: '' };
+    sceneRef.current = { canvas: renderer.domElement, camera, controls, content, framedBox: '' };
 
     return () => {
       renderer.setAnimationLoop(null);

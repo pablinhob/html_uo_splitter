@@ -100,6 +100,10 @@ export const VIEWER_HEADLIGHT_INTENSITY = 1.8;
 // Planos de recorte de la cámara, relativos a la distancia al objeto encuadrado.
 export const VIEWER_NEAR_FACTOR = 0.01;
 export const VIEWER_FAR_FACTOR = 100;
+// Pieza bajo el ratón que se puede seleccionar con un clic: se tiñe con este brillo.
+export const PIECE_HOVER_EMISSIVE_COLOR = '#1f5fbf';
+// Un clic que se desplaza más que esto (px) es un arrastre de la cámara, no un clic.
+export const PICK_CLICK_TOLERANCE_PX = 4;
 
 // Formatos de exportación, en orden de aparición; OBJ primero para que sea el de por
 // defecto. En la web el OBJ se descarga en un .zip junto con su .mtl de colores.

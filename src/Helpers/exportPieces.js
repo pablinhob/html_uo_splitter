@@ -1,7 +1,12 @@
 import { SUBTRACTION_MARGIN_MM } from '../config';
-import { hollowStoredPiece } from './hollowRequest';
+import hollowStoredPiece from './hollowStoredPiece';
 import { isHollowable, keyId } from './pieces';
-import { collectPlugCavities, collectPlugSupports } from './plugSolids';
+import {
+  collectPlugCavities,
+  collectPlugSupports,
+  overlappingCavities,
+  subtractPlugCavities,
+} from './plugSolids';
 
 /**
  * Piezas finales de la exportación (process_and_show de export_window.py):
@@ -13,35 +18,42 @@ import { collectPlugCavities, collectPlugSupports } from './plugSolids';
  * los Manifold. Los errores de una pieza no paran el resto (como en Python).
  */
 
-function boundsOverlap(first, second) {
-  const firstBox = first.boundingBox();
-  const secondBox = second.boundingBox();
-  return [0, 1, 2].every(
-    (axis) =>
-      firstBox.min[axis] <= secondBox.max[axis] && secondBox.min[axis] <= firstBox.max[axis],
-  );
+// Cavidades (con el margen de resta) y soportes de los plugs; se liberan con release.
+function createPlugContext(wasm, store, { hollow, plugs }) {
+  const { probe } = store.board();
+  const board = { wasm, probe };
+  const context = {
+    hollow,
+    cavities: collectPlugCavities(board, plugs, SUBTRACTION_MARGIN_MM),
+    supports: [],
+    warnings: [],
+  };
+  try {
+    context.supports = collectPlugSupports(board, plugs);
+  } catch (error) {
+    context.cavities.forEach((cavity) => cavity.delete());
+    throw error;
+  }
+  return context;
 }
 
-// _subtract_plugs: resta las cavidades que se solapan con la pieza (y la libera).
-function subtractPlugs(wasm, piece, cavities) {
-  const overlapping = cavities.filter((cavity) => boundsOverlap(piece, cavity));
-  if (overlapping.length === 0) return piece;
-  const result = wasm.Manifold.difference([piece, ...overlapping]);
-  piece.delete();
-  return result;
-}
+const releasePlugContext = ({ cavities, supports }) =>
+  [...cavities, ...supports].forEach((solid) => solid.delete());
 
 // _support_fragments: cada soporte recortado a la celda y taladrado.
 function supportFragments(wasm, key, cell, context) {
   return context.supports.flatMap((support, index) => {
-    if (!boundsOverlap(cell, support)) return [];
+    if (overlappingCavities(cell, [support]).length === 0) return [];
     const fragment = cell.intersect(support);
     if (fragment.isEmpty()) {
       fragment.delete();
       return [];
     }
     return [
-      { key: ['support', index, key], manifold: subtractPlugs(wasm, fragment, context.cavities) },
+      {
+        key: ['support', index, key],
+        manifold: subtractPlugCavities(wasm, fragment, context.cavities),
+      },
     ];
   });
 }
@@ -59,21 +71,14 @@ function finalPiece(wasm, store, { key, manifold }, context) {
     piece = manifold.translate(0, 0, 0);
   }
   return [
-    { key, manifold: subtractPlugs(wasm, piece, context.cavities) },
+    { key, manifold: subtractPlugCavities(wasm, piece, context.cavities) },
     ...supportFragments(wasm, key, manifold, context),
   ];
 }
 
 // params: { hollow, plugs }. progress(texto) informa de cada pieza.
-export default function buildExportPieces(wasm, store, { hollow, plugs }, progress) {
-  const { probe } = store.board();
-  const board = { wasm, probe };
-  const context = {
-    hollow,
-    cavities: collectPlugCavities(board, plugs, SUBTRACTION_MARGIN_MM),
-    supports: collectPlugSupports(board, plugs),
-    warnings: [],
-  };
+export default function buildExportPieces(wasm, store, params, progress) {
+  const context = createPlugContext(wasm, store, params);
   try {
     const stored = [...store.pieces().values()];
     const pieces = stored.flatMap((piece, index) => {
@@ -82,6 +87,27 @@ export default function buildExportPieces(wasm, store, { hollow, plugs }, progre
     });
     return { pieces, warnings: context.warnings };
   } finally {
-    [...context.cavities, ...context.supports].forEach((solid) => solid.delete());
+    releasePlugContext(context);
+  }
+}
+
+/**
+ * Previsualización del vaciado de una pieza: la misma pieza final que exportaría
+ * (vaciada, con las cavidades restadas) unida a sus soportes, en un solo Manifold
+ * que libera el llamante. Si el vaciado falla, lanza el error en vez de avisar.
+ */
+export function buildPreviewPiece(wasm, store, key, params) {
+  const stored = store.pieces().get(keyId(key));
+  if (!stored) throw new Error(`Unknown piece ${keyId(key)}`);
+  const context = createPlugContext(wasm, store, params);
+  try {
+    const parts = finalPiece(wasm, store, stored, context).map((part) => part.manifold);
+    if (parts.length === 1 && context.warnings.length === 0) return parts[0];
+    const union = context.warnings.length === 0 ? wasm.Manifold.union(parts) : null;
+    parts.forEach((part) => part.delete());
+    if (!union) throw new Error(context.warnings[0]);
+    return union;
+  } finally {
+    releasePlugContext(context);
   }
 }

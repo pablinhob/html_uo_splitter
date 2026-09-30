@@ -81,3 +81,29 @@ export function collectPlugSupports(board, plugs) {
     ...finBuilders,
   ]);
 }
+
+function boundsOverlap(first, second) {
+  const firstBox = first.boundingBox();
+  const secondBox = second.boundingBox();
+  return [0, 1, 2].every(
+    (axis) =>
+      firstBox.min[axis] <= secondBox.max[axis] && secondBox.min[axis] <= firstBox.max[axis],
+  );
+}
+
+// Cavidades cuyo bounding box toca el de la pieza (las únicas que hay que restar).
+export const overlappingCavities = (piece, cavities) =>
+  cavities.filter((cavity) => boundsOverlap(piece, cavity));
+
+/**
+ * _subtract_plugs de export_window.py: resta a la pieza las cavidades que la tocan.
+ * Consume la pieza: devuelve la misma si no toca ninguna o una nueva (y libera la
+ * original) si hay resta.
+ */
+export function subtractPlugCavities(wasm, piece, cavities) {
+  const overlapping = overlappingCavities(piece, cavities);
+  if (overlapping.length === 0) return piece;
+  const result = wasm.Manifold.difference([piece, ...overlapping]);
+  piece.delete();
+  return result;
+}

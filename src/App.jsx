@@ -15,15 +15,13 @@ import RightPanel from './Components/RightPanel/RightPanel';
 export default function App() {
   const geometryWorker = useGeometryWorker();
   const board = useBoardFile(geometryWorker);
-  const workflow = usePiecesWorkflow(geometryWorker, board.mesh);
-  const [plugs, setPlugs] = useState(DEFAULT_PLUGS);
-  const [split, setSplit] = useState(DEFAULT_SPLIT);
-  const exportDialog = useExportDialog(geometryWorker, workflow.pieces, {
-    hollow: workflow.hollow,
-    plugs,
-  });
   // Sección abierta del acordeón: 'plugs' | 'split' | 'pieces' | null
   const [expanded, setExpanded] = useState(null);
+  const workflow = usePiecesWorkflow(geometryWorker, board.mesh, () => setExpanded('pieces'));
+  const [plugs, setPlugs] = useState(DEFAULT_PLUGS);
+  const [split, setSplit] = useState(DEFAULT_SPLIT);
+  const exportParams = { hollow: workflow.hollow, plugs };
+  const exportDialog = useExportDialog(geometryWorker, workflow.pieces, exportParams);
   const viewerObjects = useViewerObjects({ geometryWorker, board, workflow, plugs });
 
   const opening = useBoardOpening(board, {
@@ -35,9 +33,6 @@ export default function App() {
   });
 
   const isBusy = board.isBusy || workflow.isBusy;
-  const onSplit = async () => {
-    if (await workflow.split(split)) setExpanded('pieces');
-  };
 
   return (
     <div className={`app-shell${isBusy ? ' busy' : ''}`}>
@@ -53,12 +48,17 @@ export default function App() {
             isBusy,
           }}
           plugs={{ value: plugs, onChange: setPlugs }}
-          split={{ value: split, onChange: setSplit, onExecute: onSplit }}
+          split={{
+            value: split,
+            onChange: setSplit,
+            onExecute: () => workflow.split(split, plugs),
+          }}
           pieces={{ ...workflow.panel, onExport: exportDialog.open }}
         />
         <RightPanel
           viewerObjects={viewerObjects}
           example={{ isVisible: !board.mesh && !board.isBusy, onOpen: opening.openExample }}
+          onPiecePick={workflow.pickPiece}
         />
       </div>
       <ExportDialog dialog={exportDialog} />

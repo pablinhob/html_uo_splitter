@@ -75,6 +75,16 @@ export function buildPiecesTree(pieceKeys) {
   return [leafNode(ALL_KEY, 'All'), ...singles, ...sides];
 }
 
+// Etiqueta de una pieza en el árbol ("Main Split 3"...), para el log al seleccionarla.
+export function pieceLabel(pieceKeys, key) {
+  const find = (nodes) =>
+    nodes.reduce(
+      (found, node) => found ?? (keyId(node.key) === keyId(key) ? node.label : find(node.children)),
+      null,
+    );
+  return find(buildPiecesTree(pieceKeys)) ?? keyId(key);
+}
+
 /**
  * Nombre de cada objeto en el fichero exportado (_piece_name de export_window.py):
  * "Stringer", "Side A - Split 3", "Cutlap B - Split 1", "Support 2 - Side A - Split 3".
