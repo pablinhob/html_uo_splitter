@@ -6,7 +6,7 @@ import useGeometryWorker from './Hooks/useGeometryWorker';
 import useExportDialog from './Hooks/useExportDialog';
 import usePiecesWorkflow from './Hooks/usePiecesWorkflow';
 import useViewerObjects from './Hooks/useViewerObjects';
-import AppHeader from './Components/AppHeader';
+import AppHeader from './Components/AppHeader/AppHeader';
 import ExportDialog from './Components/ExportDialog';
 import LeftPanel from './Components/LeftPanel/LeftPanel';
 import RightPanel from './Components/RightPanel/RightPanel';

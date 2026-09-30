@@ -1,8 +1,8 @@
 import { DONATION_URL } from '../../../config';
 import scene from '../../../Helpers/donationScene';
+import PixelSprite from '../../Misc/PixelSprite';
+import PixelWave from '../../Misc/PixelWave';
 import PixelSky from './PixelSky';
-import PixelSprite from './PixelSprite';
-import PixelWave from './PixelWave';
 
 /**
  * Banner de donaciones en pixel art: sol con gafas, gaviota, un surfista que hace
@@ -14,7 +14,7 @@ export default function DonationBanner() {
   return (
     <section className="donation-banner" aria-label="Support UO Splitter">
       <svg
-        className="donation-art"
+        className="pixel-art donation-art"
         viewBox={`0 0 ${widthPx} ${heightPx}`}
         shapeRendering="crispEdges"
         aria-hidden="true"

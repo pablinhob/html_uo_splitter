@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DONATION_SPRITE_PALETTE } from '../config';
-import scene from './donationScene';
+import donationScene from './donationScene';
+import headerScene from './headerScene';
 import { bandRects, spriteRects, waveRects } from './pixelArt';
 
 describe('spriteRects', () => {
@@ -75,17 +76,27 @@ describe('waveRects', () => {
   });
 });
 
-describe('escena del banner de donaciones', () => {
-  it('cada sprite es rectangular, usa colores de la paleta y cabe en vertical', () => {
+describe.each([
+  { name: 'banner de donaciones', scene: donationScene },
+  { name: 'cabecera', scene: headerScene },
+])('escena de pixel art: $name', ({ scene }) => {
+  it('cada sprite es rectangular, usa colores de la paleta y cabe en la escena', () => {
     Object.values(scene.sprites).forEach(({ rows, y }) => {
       rows.forEach((row) => expect(row).toHaveLength(rows[0].length));
       expect(() => spriteRects(rows, DONATION_SPRITE_PALETTE)).not.toThrow();
+      expect(y).toBeGreaterThanOrEqual(0);
       expect(y + rows.length).toBeLessThanOrEqual(scene.heightPx);
     });
   });
 
+  it('las olas usan el periodo de 20 px de la animación (styles.css)', () => {
+    expect(scene.wavePeriodPx).toBe(20);
+  });
+});
+
+describe('escena del banner de donaciones', () => {
   it('el surfista pisa la cubierta de la tabla', () => {
-    const { board, surfer } = scene.sprites;
+    const { board, surfer } = donationScene.sprites;
     const deckRow = board.rows.findIndex((row) => row.startsWith('W'));
     expect(surfer.y + surfer.rows.length).toBe(board.y + deckRow);
   });

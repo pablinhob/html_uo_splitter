@@ -65,7 +65,7 @@ Las dependencias de cada paso se piden antes de instalarlas, según CLAUDE.md.
     equilibrios en su tabla y una aleta de tiburón que le sigue.
   - Las animaciones van a saltos de un píxel (`steps()`) y son lentas. Con
     `prefers-reduced-motion` no hay animación.
-  - Los sprites y la posición de cada elemento están en `Helpers/donationScene.js`, y
+  - La posición de cada elemento está en `Helpers/donationScene.js`, y
     los colores en `config.js`. `Helpers/pixelArt.js` los convierte en rectángulos
     (probado en `pixelArt.test.js`).
   - El botón "CHIP IN FOR WAX" enlaza a `DONATION_URL` (`config.js`).
@@ -75,13 +75,20 @@ Las dependencias de cada paso se piden antes de instalarlas, según CLAUDE.md.
   sombreado es suave entre caras casi coplanarias y la arista queda viva por encima
   de `SHADING_CREASE_ANGLE_DEG` (30°, igual que las aristas dibujadas). Lo comprueba
   `meshData.test.js`.
-- **Cabecera con la imagen de Ula Ola** (`Components/AppHeader.jsx`). Es una barra de
+- **Cabecera con la imagen de Ula Ola** (`Components/AppHeader/AppHeader.jsx`). Es una barra de
   40 px con la misma línea que la web principal (repositorio `ulaolaweb_new`, fichero
-  `index_hacker.css`): fondo negro y línea verde neón `#39ff14`.
+  `index_hacker.css`): fondo azul noche en degradado (`#000814` → `#001d3d`, la variante
+  de cabecera de esa hoja) y línea verde neón `#39ff14`.
   - A la izquierda van el logo "UO", una línea fina y el lema "Ula Ola – Unusual surf".
     El texto es blanco y usa una tipografía geométrica (Futura o Avenir) que acompaña
     al logo.
-  - A la derecha, la ruta de la app en mono con un cursor de terminal.
+  - A la derecha, la ruta de la app en mono con un cursor de terminal. Detrás lleva un
+    fondo de pixel art de 380 × 40 px (toda la altura, más largo que el texto): las
+    olas del banner de donaciones en azules muy oscuros (`HEADER_SCENE_COLORS`) y la
+    aleta de tiburón. Se funde con el fondo por la izquierda
+    (`AppHeader/HeaderScene.jsx`, `Helpers/headerScene.js`).
+  - El banner y la cabecera comparten los sprites (`Helpers/pixelSprites.js`) y los
+    componentes `Misc/PixelSprite` y `Misc/PixelWave`.
   - Los datos están en `BRAND` (`config.js`).
   - El logo y el favicon salen de la web antigua (repositorio `ulaolaweb`):
     `img/logos/blanco_transparente_recortado.png` pasa a

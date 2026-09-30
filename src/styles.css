@@ -98,18 +98,22 @@ p {
 
 /* ------------------------------------------------------------ Cabecera */
 
-/* Misma línea que la web de Ula Ola: negro, línea verde neón y tipografía mono. */
+/* Misma línea que la web de Ula Ola: azul noche (#000814 → #001d3d, la variante de
+   su cabecera en index_hacker.css), línea verde neón y tipografía mono.
+   41 px = 40 del fondo de olas (20 píxeles del dibujo a 2 px) + 1 de línea. */
 .app-header {
   --brand-green: #39ff14;
-  --brand-sky: #7dd3fc;
+  /* Ruta de la app: el azul de la web, algo más apagado para no chocar con las olas. */
+  --brand-path: #5eb0e0;
   --brand-wave: #90e0ef;
 
-  flex: 0 0 40px;
+  position: relative;
+  flex: 0 0 41px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  background: #000000;
+  background: linear-gradient(90deg, #000814, #001d3d);
   border-bottom: 1px solid var(--brand-green);
   box-shadow: 0 2px 20px rgb(57 255 20 / 10%);
   color: #ffffff;
@@ -164,12 +168,37 @@ p {
   color: var(--brand-wave);
 }
 
+/* Fondo de olas del extremo derecho: toda la altura (1 píxel del dibujo = 2 px),
+   más largo que la ruta y fundido con el fondo por la izquierda. */
+.header-scene {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 380px;
+  height: 40px;
+  mask-image: linear-gradient(90deg, transparent, #000000 35%);
+}
+
+/* En la cabecera las olas van más deprisa que en el banner (mismo desplazamiento). */
+.header-scene .wave-back {
+  animation-duration: 4.5s;
+}
+
+.header-scene .wave-front {
+  animation-duration: 2s;
+}
+
+.header-scene .shark {
+  animation-duration: 5s;
+}
+
 .app-path {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: var(--brand-sky);
+  color: var(--brand-path);
 }
 
 .app-prompt {
@@ -512,36 +541,37 @@ p {
   image-rendering: pixelated;
 }
 
-/* Las olas avanzan un periodo (wavePeriodPx en Helpers/donationScene.js). */
-.donation-art .wave-back {
+/* Animaciones del pixel art (banner y cabecera). Las olas avanzan un periodo:
+   wavePeriodPx en Helpers/donationScene.js y Helpers/headerScene.js. */
+.pixel-art .wave-back {
   animation: pixel-wave-drift 16s steps(20) infinite;
 }
 
-.donation-art .wave-middle {
+.pixel-art .wave-middle {
   animation: pixel-wave-drift 11s steps(20) infinite reverse;
 }
 
-.donation-art .wave-front {
+.pixel-art .wave-front {
   animation: pixel-wave-drift 7s steps(20) infinite;
 }
 
-.donation-art .rider {
+.pixel-art .rider {
   animation: pixel-bob 1.6s steps(1) infinite;
 }
 
-.donation-art .shark {
+.pixel-art .shark {
   animation: shark-patrol 9s steps(8) infinite alternate;
 }
 
-.donation-art .gull {
+.pixel-art .gull {
   animation: gull-flight 36s steps(130) infinite;
 }
 
-.donation-art .gull-wings-up {
+.pixel-art .gull-wings-up {
   animation: gull-flap 0.8s steps(1) infinite;
 }
 
-.donation-art .gull-wings-down {
+.pixel-art .gull-wings-down {
   animation: gull-flap 0.8s steps(1) infinite reverse;
 }
 
@@ -576,11 +606,11 @@ p {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .donation-art * {
+  .pixel-art * {
     animation: none !important;
   }
 
-  .donation-art .gull {
+  .pixel-art .gull {
     display: none;
   }
 }

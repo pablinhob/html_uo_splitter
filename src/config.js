@@ -142,7 +142,7 @@ export const BRAND = {
   tagline: 'Unusual surf',
   logoPath: 'brand/ulaola-logo.png',
   siteURL: '',
-  appPath: '~/software/uo-splitter',
+  appPath: '~/ulaola/surfboard-splitter',
 };
 
 // Banner de donaciones al pie del panel izquierdo.
@@ -173,6 +173,15 @@ export const DONATION_SCENE_COLORS = {
   waveMiddle: '#1497d6',
   waveFront: '#0a5aa8',
   foam: '#ffffff',
+};
+
+// Olas de fondo de la cabecera: oscuras para que se lea encima la ruta de la app
+// (azul claro y verde neón de la web de Ula Ola).
+export const HEADER_SCENE_COLORS = {
+  waveBack: '#0b3a6a',
+  waveFront: '#0a3159',
+  foam: '#4f93cf',
+  sharkFin: '#5579a3',
 };
 
 // --- Plugs (plug_subtraction_geometries.py / plug_position.py) ---------------
