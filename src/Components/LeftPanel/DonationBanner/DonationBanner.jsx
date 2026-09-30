@@ -37,7 +37,6 @@ export default function DonationBanner() {
         <PixelWave wave={waves.front} scene={scene} className="wave wave-front" />
       </svg>
       <div className="donation-content">
-        <p className="donation-title">Keep the shaper stoked!</p>
         <p className="donation-text">Donations = wax, pizza &amp; shark insurance.</p>
         <a
           className="donation-button"
@@ -45,7 +44,7 @@ export default function DonationBanner() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          CHIP IN FOR WAX
+          ADOPT A SHAPER
         </a>
       </div>
     </section>
