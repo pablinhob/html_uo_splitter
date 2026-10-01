@@ -132,8 +132,9 @@ Las dependencias de cada paso se piden antes de instalarlas, según CLAUDE.md.
   - En el paso 3, el último "siguiente" es "Export hollowing →", en lugar del botón
     que había junto a "Preview part hollowing". Se habilita en el mismo caso que antes.
   - "Polygon hollowing actions" se ve siempre en el paso 3, deshabilitado (el
-    `fieldset` con `disabled`) hasta seleccionar una pieza del núcleo. Debajo del árbol
-    se explica por qué, también si no hay nada seleccionado.
+    `fieldset` con `disabled`) hasta seleccionar una pieza del núcleo. Bajo "Preview part
+    hollowing" se explica por qué, también si no hay nada seleccionado. Con el stringer
+    o un cutlap, el mensaje es una alerta discreta en naranja (`.hint.warning`).
   - Con "all" seleccionado (`isAllSelected` en `pieces.js`) se pueden ajustar los
     sliders y exportar sin previsualizar, porque la exportación vacía todas las
     piezas. "Preview part hollowing" sigue necesitando una pieza del núcleo.
@@ -141,6 +142,16 @@ Las dependencias de cada paso se piden antes de instalarlas, según CLAUDE.md.
   - El visor sigue al paso: en los pasos 1 y 2 muestra la tabla sin cortar con los
     marcadores de los plugs, y en el 3 las piezas (`useViewerObjects` recibe
     `currentStep`). Las piezas se conservan al volver atrás.
+  - La lista de piezas del paso 3 se divide en secciones (`buildPiecesSections` en
+    `pieces.js`, a partir del mismo árbol de `buildPiecesTree`):
+    - Botones "All" y "Stringer".
+    - "Main parts", con la etiqueta "Hollowable parts" en azul: un desplegable con
+      un grupo por mitad. Side A y Side B son solo encabezados, porque seleccionar la
+      mitad entera también mostraría sus cutlaps.
+    - "Cutlaps", con la etiqueta "Not hollowable" en naranja (`--warning`): otro
+      desplegable por mitades, con "All in Side A/B" para ver los cutlaps de una
+      mitad.
+    - Si la selección es de otra sección, el desplegable muestra su texto de ayuda.
 - **Confirmar antes de cambiar de tabla.** Con una tabla cargada, "Add STL shape"
   abre antes un diálogo (`ActionBar/ConfirmDialog.jsx`, un `<dialog>` modal): "Discard
   and open" abre el selector de ficheros y "Cancel" o Escape no hacen nada. Si luego se

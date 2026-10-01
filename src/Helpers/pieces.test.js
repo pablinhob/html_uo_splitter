@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { BOARD_COLOR, CUTLAP_COLOR, STRINGER_COLOR } from '../config';
 import {
   ALL_KEY,
+  buildPiecesSections,
   buildPiecesTree,
   classifyPiece,
   isAllSelected,
@@ -38,6 +39,30 @@ describe('buildPiecesTree', () => {
 
   it('solo muestra "All" si no hay piezas', () => {
     expect(labels(buildPiecesTree([]))).toEqual(['All']);
+  });
+});
+
+describe('buildPiecesSections', () => {
+  it('separa All, stringer, cutlaps por mitad y piezas vaciables', () => {
+    const sections = buildPiecesSections(pieceKeys);
+    expect(sections.all.key).toEqual(ALL_KEY);
+    expect(labels(sections.singles)).toEqual(['Stringer']);
+
+    expect(labels(sections.cutlapSides)).toEqual(['Side A']);
+    expect(sections.cutlapSides[0].key).toEqual(['a', 'cutlap']);
+    expect(labels(sections.cutlapSides[0].children)).toEqual(['Cutlap split 1', 'Cutlap split 2']);
+
+    expect(labels(sections.hollowableSides)).toEqual(['Side A', 'Side B']);
+    expect(sections.hollowableSides[0].isSelectable).toBe(false);
+    expect(labels(sections.hollowableSides[0].children)).toEqual(['Main Split 1', 'Main Split 2']);
+    expect(sections.hollowableSides[1].children[0].key).toEqual(['b', 0]);
+  });
+
+  it('deja las secciones vacías si no hay piezas', () => {
+    const sections = buildPiecesSections([]);
+    expect(sections.singles).toEqual([]);
+    expect(sections.cutlapSides).toEqual([]);
+    expect(sections.hollowableSides).toEqual([]);
   });
 });
 

@@ -6,8 +6,9 @@ import SliderField from '../../Misc/SliderField';
  * pieces: las mismas props que recibe PiecesPanel.
  * isDisabled: la selección no admite vaciado (todo el grupo deshabilitado).
  * isPreviewDisabled: no hay una pieza concreta que previsualizar (p. ej. "all").
+ * hint: { text, isWarning } que explica por qué no hay acciones, o null.
  */
-export default function HollowingActions({ pieces, isDisabled, isPreviewDisabled }) {
+export default function HollowingActions({ pieces, isDisabled, isPreviewDisabled, hint = null }) {
   const { hollow, onHollowChange, onApply } = pieces;
   const set = (field) => (next) => onHollowChange({ ...hollow, [field]: next });
   return (
@@ -48,6 +49,11 @@ export default function HollowingActions({ pieces, isDisabled, isPreviewDisabled
       <button type="button" onClick={onApply} disabled={isPreviewDisabled}>
         Preview part hollowing
       </button>
+      {hint !== null && (
+        <p className={`hint${hint.isWarning ? ' warning' : ''}`} role="status">
+          {hint.text}
+        </p>
+      )}
     </GroupBox>
   );
 }

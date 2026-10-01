@@ -34,6 +34,9 @@ export function matchesSelection(selection, key) {
   return keyId(key.slice(0, selection.length)) === keyId(selection);
 }
 
+// Pieza del núcleo que se puede vaciar (_is_hollowable): ni stringer ni cutlap.
+export const isHollowable = (key) => key.length === 2 && key[1] !== 'cutlap';
+
 const leafNode = (key, label) => ({ key, label, children: [] });
 
 // Ordena por el índice de la clave y numera desde 1 ("Main Split 1", ...).
@@ -79,6 +82,38 @@ export function buildPiecesTree(pieceKeys) {
   return [leafNode(ALL_KEY, 'All'), ...singles, ...sides];
 }
 
+/**
+ * El mismo árbol repartido en las secciones del paso 3:
+ * - all y singles (stringer): botones sueltos.
+ * - cutlapSides: los cutlaps de cada mitad, con la mitad como nodo seleccionable.
+ * - hollowableSides: las piezas que se pueden vaciar, agrupadas por mitad. La mitad
+ *   es solo un encabezado (isSelectable: false), porque su clave también incluiría
+ *   los cutlaps.
+ */
+export function buildPiecesSections(pieceKeys) {
+  const [all, ...nodes] = buildPiecesTree(pieceKeys);
+  const sides = nodes.filter((node) => node.children.length > 0);
+  const cutlapSides = sides
+    .map((side) => {
+      const cutlap = side.children.find((child) => child.key[1] === 'cutlap');
+      return cutlap && { ...cutlap, label: side.label };
+    })
+    .filter(Boolean);
+  const hollowableSides = sides
+    .map((side) => ({
+      ...side,
+      isSelectable: false,
+      children: side.children.filter((child) => isHollowable(child.key)),
+    }))
+    .filter((side) => side.children.length > 0);
+  return {
+    all,
+    singles: nodes.filter((node) => node.children.length === 0),
+    cutlapSides,
+    hollowableSides,
+  };
+}
+
 // Etiqueta de una pieza en el árbol ("Main Split 3"...), para el log al seleccionarla.
 export function pieceLabel(pieceKeys, key) {
   const find = (nodes) =>
@@ -103,6 +138,3 @@ export function pieceName(key) {
   if (key.length === 2) return `${PIECE_LABELS[key[0]] ?? key[0]} - Split ${key[1] + 1}`;
   return key.join('-');
 }
-
-// Pieza del núcleo que se puede vaciar (_is_hollowable): ni stringer ni cutlap.
-export const isHollowable = (key) => key.length === 2 && key[1] !== 'cutlap';
