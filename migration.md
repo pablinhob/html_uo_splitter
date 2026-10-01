@@ -165,7 +165,9 @@ Las dependencias de cada paso se piden antes de instalarlas, según CLAUDE.md.
     el centro, el logotipo del programa.
   - El logotipo (`Helpers/splitterLogo.js`, probado en `splitterLogo.test.js`) es
     una tabla vista desde arriba con la rejilla de cortes y el stringer de madera
-    (color `N` de la paleta). Flota, y sus dos mitades se separan por el stringer y
+    (color `N` de la paleta). La planta es la del fish Cobra de los ejemplos,
+    rasterizada de `Cobra.stl`, con la cola en swallow a la izquierda algo más
+    marcada para que se lea a ese tamaño. Flota, y sus dos mitades se separan por el stringer y
     vuelven a juntarse.
   - Debajo, la carta de presentación firmada por Pablo y el botón "START SHAPING".
   - `PixelSky` pasa a `Misc/`, porque lo usan el banner y la bienvenida.

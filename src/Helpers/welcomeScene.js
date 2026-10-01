@@ -24,7 +24,7 @@ export default {
   foamColor: DONATION_SCENE_COLORS.foam,
   sprites: {
     sun: { rows: SUN, x: 142, y: 3 },
-    ...splitterLogo({ x: 48, y: 11 }),
+    ...splitterLogo({ x: 48, y: 10 }),
     ...riderOnBoard({ x: 10, y: 43 }),
     sharkFin: { rows: SHARK_FIN, x: 116, y: 47 },
     gullWingsUp: { rows: GULL_WINGS_UP, x: 162, y: 7 },
