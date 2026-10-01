@@ -58,7 +58,7 @@ export default function LeftPanel({ file, steps, plugs, split, pieces }) {
 
   return (
     <aside className="left-panel">
-      <ActionBar onOpenSTL={file.onOpenSTL} />
+      <ActionBar onOpenSTL={file.onOpenSTL} hasBoard={steps.hasMesh} />
       <p className="file-path" title={file.fileName ?? undefined}>
         {file.fileName ?? 'No file selected'}
       </p>

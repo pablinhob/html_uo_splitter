@@ -138,6 +138,13 @@ Las dependencias de cada paso se piden antes de instalarlas, según CLAUDE.md.
     sliders y exportar sin previsualizar, porque la exportación vacía todas las
     piezas. "Preview part hollowing" sigue necesitando una pieza del núcleo.
   - Mientras hay una operación en curso, la navegación se deshabilita.
+  - El visor sigue al paso: en los pasos 1 y 2 muestra la tabla sin cortar con los
+    marcadores de los plugs, y en el 3 las piezas (`useViewerObjects` recibe
+    `currentStep`). Las piezas se conservan al volver atrás.
+- **Confirmar antes de cambiar de tabla.** Con una tabla cargada, "Add STL shape"
+  abre antes un diálogo (`ActionBar/ConfirmDialog.jsx`, un `<dialog>` modal): "Discard
+  and open" abre el selector de ficheros y "Cancel" o Escape no hacen nada. Si luego se
+  cancela el selector, la tabla actual se conserva.
 
 ---
 

@@ -778,6 +778,40 @@ p {
   outline-offset: 1px;
 }
 
+/* ------------------------------------------------------------ Confirmación */
+
+.confirm-dialog {
+  width: 420px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.confirm-dialog::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+
+.confirm-dialog h2 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.confirm-dialog footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.confirm-dialog-accept {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
 /* ------------------------------------------------------------ Export */
 
 .export-dialog {

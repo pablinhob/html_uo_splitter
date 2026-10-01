@@ -22,7 +22,7 @@ export default function App() {
   const [split, setSplit] = useState(DEFAULT_SPLIT);
   const exportParams = { hollow: workflow.hollow, plugs };
   const exportDialog = useExportDialog(geometryWorker, workflow.pieces, exportParams);
-  const viewerObjects = useViewerObjects({ geometryWorker, board, workflow, plugs });
+  const viewerObjects = useViewerObjects({ geometryWorker, board, workflow, plugs, currentStep });
 
   const opening = useBoardOpening(board, {
     onStart: () => {
