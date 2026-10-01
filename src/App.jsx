@@ -40,7 +40,7 @@ export default function App() {
       <AppHeader />
       <div className="app">
         <LeftPanel
-          file={{ fileName: board.fileName, stats: board.stats, onOpenSTL: opening.onFileInput }}
+          file={{ fileName: board.fileName, onOpenSTL: opening.onFileInput }}
           steps={{
             currentStep,
             onStepChange: setCurrentStep,
@@ -57,7 +57,7 @@ export default function App() {
           pieces={{ ...workflow.panel, onExport: exportDialog.open }}
         />
         <RightPanel
-          viewerObjects={viewerObjects}
+          viewer={{ objects: viewerObjects, stats: board.stats }}
           example={{ isVisible: !board.mesh && !board.isBusy, onOpen: opening.openExample }}
           onPiecePick={workflow.pickPiece}
         />

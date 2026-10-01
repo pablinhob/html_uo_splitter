@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { EXPORT_FORMATS } from '../config';
-import Viewer from './Misc/Viewer';
+import Viewer from './Misc/Viewer/Viewer';
 
 /**
  * Ventana "Export hollowing" (export_window.py) como diálogo modal.

@@ -100,6 +100,9 @@ export const VIEWER_HEADLIGHT_INTENSITY = 1.8;
 // Planos de recorte de la cámara, relativos a la distancia al objeto encuadrado.
 export const VIEWER_NEAR_FACTOR = 0.01;
 export const VIEWER_FAR_FACTOR = 100;
+// Al mirar a lo largo de Z (el "arriba" de la cámara) se inclina un poco hacia -Y,
+// para que la orientación quede definida y +Y apunte hacia arriba en pantalla.
+export const VIEWER_ALONG_Z_TILT = 1e-3;
 // Pieza bajo el ratón que se puede seleccionar con un clic: se tiñe con este brillo.
 export const PIECE_HOVER_EMISSIVE_COLOR = '#1f5fbf';
 // Un clic que se desplaza más que esto (px) es un arrastre de la cámara, no un clic.

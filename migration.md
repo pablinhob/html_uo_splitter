@@ -169,6 +169,22 @@ Las dependencias de cada paso se piden antes de instalarlas, según CLAUDE.md.
     vuelven a juntarse.
   - Debajo, la carta de presentación firmada por Pablo y el botón "START SHAPING".
   - `PixelSky` pasa a `Misc/`, porque lo usan el banner y la bienvenida.
+- **Gestor de cámara del visor** (`Misc/Viewer/ViewerToolbar.jsx`). Es una barra
+  de iconos grandes (60 × 56 px) flotante en la esquina superior derecha del visor,
+  también en el de exportación. El zoom se hace con la rueda del ratón.
+  - X, Y y Z (cubo isométrico con la cara correspondiente rellena): miran a lo largo
+    de cada eje de la escena; Z es la vista superior. Al mirar a lo largo de Z, la
+    cámara se inclina un poco (`VIEWER_ALONG_Z_TILT`) para que +Y quede hacia arriba
+    en pantalla.
+  - Encuadre (cuatro esquinas, el último botón): vuelve a la vista isométrica que encuadra la tabla,
+    igual que al cargarla.
+  - Las vistas encuadran los objetos visibles. La cámara está en
+    `Helpers/viewerCamera.js` (`frameCamera` sale de `viewerScene.js`), probada en
+    `viewerCamera.test.js`. El visor pasa a su carpeta `Misc/Viewer/`.
+- **Object info sobre el visor** (`RightPanel/ObjectStatsPanel.jsx`). La caja y el
+  volumen del modelo salen del panel izquierdo y pasan a una tarjeta translúcida
+  abajo a la derecha del visor. Solo se ve con una tabla cargada y no bloquea el
+  ratón.
 
 ---
 

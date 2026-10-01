@@ -6,14 +6,10 @@ import {
   FEATURE_EDGE_ANGLE_DEG,
   PIECE_HOVER_EMISSIVE_COLOR,
   SPLIT_EDGE_COLOR,
-  VIEWER_FAR_FACTOR,
-  VIEWER_NEAR_FACTOR,
 } from '../config';
 
 // Objetos de three.js que monta el visor (equivalen a los actores de viewer.py).
 // Sin React ni DOM: reciben datos y devuelven objetos de escena.
-
-const isometricDirection = new THREE.Vector3(1, 1, 1).normalize();
 
 // Cada eje del bbox: [coordenada de la cara, sentido hacia dentro].
 const axisEnds = (min, max) => [
@@ -108,19 +104,6 @@ export function framingBoxes(objects) {
 
 export const boxKey = (box) =>
   box.isEmpty() ? '' : [...box.min.toArray(), ...box.max.toArray()].join(',');
-
-// reset_camera(): vista isométrica que encuadra el bbox.
-export function frameCamera(camera, controls, box) {
-  const center = box.getCenter(new THREE.Vector3());
-  const { radius } = box.getBoundingSphere(new THREE.Sphere());
-  const distance = radius / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2));
-  camera.position.copy(center).addScaledVector(isometricDirection, distance);
-  camera.near = distance * VIEWER_NEAR_FACTOR;
-  camera.far = distance * VIEWER_FAR_FACTOR;
-  camera.updateProjectionMatrix();
-  controls.target.copy(center);
-  controls.update();
-}
 
 // Las geometrías de las mallas pertenecen al llamante; solo se liberan las que
 // crea el visor (aristas y esquinas). Los materiales son siempre del visor.

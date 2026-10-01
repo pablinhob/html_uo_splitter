@@ -1,6 +1,5 @@
 import ActionBar from './ActionBar/ActionBar';
 import DonationBanner from './DonationBanner/DonationBanner';
-import ObjectStatsPanel from './ObjectStatsPanel';
 import PiecesPanel from './PiecesPanel/PiecesPanel';
 import PlugsSetupPanel from './PlugsSetupPanel/PlugsSetupPanel';
 import SplitterParametrizationPanel from './SplitterParametrizationPanel';
@@ -8,10 +7,10 @@ import StepWizard from './StepWizard/StepWizard';
 
 /**
  * Panel izquierdo: acciones, fichero cargado, los tres pasos en un asistente
- * (un paso visible a la vez), información del objeto y el banner de donaciones.
+ * (un paso visible a la vez) y el banner de donaciones.
  * El estado vive en App; aquí solo se presenta.
  *
- * - file:   { fileName, stats, onOpenSTL }
+ * - file:   { fileName, onOpenSTL }
  * - steps:  { currentStep, onStepChange, hasMesh, hasPieces, isBusy }
  * - plugs:  { value, onChange }
  * - split:  { value, onChange, onExecute }
@@ -69,7 +68,6 @@ export default function LeftPanel({ file, steps, plugs, split, pieces }) {
         isBusy={steps.isBusy}
       />
       <div className="spacer" />
-      <ObjectStatsPanel stats={file.stats} />
       <DonationBanner />
     </aside>
   );

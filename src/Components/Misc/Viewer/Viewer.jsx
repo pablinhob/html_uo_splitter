@@ -1,14 +1,15 @@
 import { useEffect, useRef } from 'react';
+import { frameCamera, viewDirection } from '../../../Helpers/viewerCamera';
 import {
   boxKey,
   buildCornerBrackets,
   buildObjectMeshes,
   disposeObject,
-  frameCamera,
   framingBoxes,
-} from '../../Helpers/viewerScene';
-import useThreeScene from '../../Hooks/useThreeScene';
-import useViewerPicking from '../../Hooks/useViewerPicking';
+} from '../../../Helpers/viewerScene';
+import useThreeScene from '../../../Hooks/useThreeScene';
+import useViewerPicking from '../../../Hooks/useViewerPicking';
+import ViewerToolbar from './ViewerToolbar';
 
 /**
  * Visor 3D (sustituye a MeshViewer de PyVista).
@@ -20,7 +21,8 @@ import useViewerPicking from '../../Hooks/useViewerPicking';
  *   - pickKey: la malla se resalta bajo el ratón y un clic llama a
  *     onObjectClick({ key: pickKey }).
  * La cámara se reencuadra cuando cambia el bbox de los objetos visibles con
- * frame, de modo que actualizar los marcadores no mueve la vista.
+ * frame, de modo que actualizar los marcadores no mueve la vista. La barra del
+ * gestor de cámara cambia de vista (encuadrando ese mismo bbox).
  */
 export default function Viewer({ objects = [], onObjectClick = null }) {
   const containerRef = useRef(null);
@@ -42,7 +44,19 @@ export default function Viewer({ objects = [], onObjectClick = null }) {
     const key = boxKey(visibleBox);
     if (key !== '' && key !== state.framedBox) frameCamera(camera, controls, visibleBox);
     state.framedBox = key;
+    state.visibleBox = visibleBox;
   }, [objects, sceneRef]);
 
-  return <div className="viewer" ref={containerRef} />;
+  const onView = ({ viewId }) => {
+    const state = sceneRef.current;
+    if (!state?.visibleBox || state.visibleBox.isEmpty()) return;
+    const { camera, controls, visibleBox } = state;
+    frameCamera(camera, controls, visibleBox, viewDirection(viewId));
+  };
+
+  return (
+    <div className="viewer" ref={containerRef}>
+      <ViewerToolbar onView={onView} />
+    </div>
+  );
 }

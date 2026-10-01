@@ -578,6 +578,7 @@ p {
 /* ------------------------------------------------------------ Visor y consola */
 
 .viewer {
+  position: relative;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -587,6 +588,92 @@ p {
 
 .viewer canvas {
   display: block;
+}
+
+/* Gestor de cámara: barra flotante en la esquina superior derecha del visor */
+.viewer-toolbar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 12px;
+  background: rgb(20 20 22 / 0.75);
+  backdrop-filter: blur(4px);
+}
+
+.viewer-toolbar button {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 56px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #e8e8ea;
+}
+
+.viewer-toolbar svg {
+  width: 36px;
+  height: 36px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.viewer-toolbar svg .filled {
+  fill: currentColor;
+  fill-opacity: 0.55;
+}
+
+.viewer-toolbar button:hover {
+  border-color: transparent;
+  background: rgb(255 255 255 / 0.12);
+}
+
+/* Información del modelo: tarjeta flotante abajo a la derecha del visor */
+.object-stats {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 1;
+  padding: 8px 12px;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 6px;
+  background: rgb(20 20 22 / 0.75);
+  backdrop-filter: blur(4px);
+  color: #e8e8ea;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.object-stats-title {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.object-stats dl {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 2px 12px;
+  margin: 0;
+}
+
+.object-stats dt {
+  color: #9a9aa0;
+}
+
+.object-stats dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .viewer-area {
