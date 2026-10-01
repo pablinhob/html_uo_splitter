@@ -10,6 +10,7 @@ import AppHeader from './Components/AppHeader/AppHeader';
 import ExportDialog from './Components/ExportDialog';
 import LeftPanel from './Components/LeftPanel/LeftPanel';
 import RightPanel from './Components/RightPanel/RightPanel';
+import WelcomeDialog from './Components/WelcomeDialog/WelcomeDialog';
 
 // Ventana principal (main_window.py): une el estado de la app con los paneles.
 export default function App() {
@@ -62,6 +63,7 @@ export default function App() {
         />
       </div>
       <ExportDialog dialog={exportDialog} />
+      <WelcomeDialog />
     </div>
   );
 }

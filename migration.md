@@ -156,6 +156,19 @@ Las dependencias de cada paso se piden antes de instalarlas, según CLAUDE.md.
   abre antes un diálogo (`ActionBar/ConfirmDialog.jsx`, un `<dialog>` modal): "Discard
   and open" abre el selector de ficheros y "Cancel" o Escape no hacen nada. Si luego se
   cancela el selector, la tabla actual se conserva.
+- **Ventana de bienvenida** (`Components/WelcomeDialog/`). Sale al abrir el programa,
+  una vez por sesión del navegador. Se marca como vista al cerrarla, en
+  `sessionStorage` con la clave `WELCOME_SEEN_STORAGE_KEY` (`Hooks/useWelcomeOnce.js`).
+  Si el almacenamiento falla, se registra el error y la ventana sale igualmente.
+  - Arriba, una escena animada con el estilo del banner de donaciones
+    (`Helpers/welcomeScene.js`): cielo, olas, sol, gaviota, surfista, tiburón y, en
+    el centro, el logotipo del programa.
+  - El logotipo (`Helpers/splitterLogo.js`, probado en `splitterLogo.test.js`) es
+    una tabla vista desde arriba con la rejilla de cortes y el stringer de madera
+    (color `N` de la paleta). Flota, y sus dos mitades se separan por el stringer y
+    vuelven a juntarse.
+  - Debajo, la carta de presentación firmada por Pablo y el botón "START SHAPING".
+  - `PixelSky` pasa a `Misc/`, porque lo usan el banner y la bienvenida.
 
 ---
 

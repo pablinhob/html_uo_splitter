@@ -781,7 +781,8 @@ p {
   font-weight: 700;
 }
 
-.donation-button {
+.donation-button,
+.welcome-button {
   margin-top: auto;
   padding: 6px 16px;
   border: 3px solid #1d1d3b;
@@ -795,18 +796,134 @@ p {
   cursor: pointer;
 }
 
-.donation-button:hover {
+.donation-button:hover,
+.welcome-button:hover {
   background: #ff5c93;
 }
 
-.donation-button:active {
+.donation-button:active,
+.welcome-button:active {
   box-shadow: 1px 1px 0 #1d1d3b;
   transform: translate(2px, 2px);
 }
 
-.donation-button:focus-visible {
+.donation-button:focus-visible,
+.welcome-button:focus-visible {
   outline: 3px solid #ffd23f;
   outline-offset: 1px;
+}
+
+/* ------------------------------------------------------------ Bienvenida */
+
+.welcome-dialog {
+  width: 620px;
+  max-width: calc(100vw - 32px);
+  padding: 0;
+  border: 3px solid #1d1d3b;
+  border-radius: 0;
+  box-shadow: 6px 6px 0 #1d1d3b;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.welcome-dialog::backdrop {
+  background: rgb(0 8 20 / 0.6);
+}
+
+.welcome-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-bottom: 3px solid #1d1d3b;
+  image-rendering: pixelated;
+}
+
+.welcome-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 22px 20px;
+  line-height: 1.5;
+}
+
+.welcome-title {
+  margin: 0 0 4px;
+  font-family: Menlo, 'Courier New', monospace;
+  font-size: 18px;
+}
+
+.welcome-signature {
+  font-family: Menlo, 'Courier New', monospace;
+  font-weight: 700;
+}
+
+.welcome-content footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.welcome-button {
+  font-family: Menlo, 'Courier New', monospace;
+}
+
+/* El logotipo flota y sus dos mitades se separan por el stringer y vuelven a unirse */
+.welcome-art .logo {
+  animation: pixel-bob 2.4s steps(1) infinite;
+}
+
+.welcome-art .logo-side-a {
+  animation: logo-split-a 5s steps(1) infinite;
+}
+
+.welcome-art .logo-side-b {
+  animation: logo-split-b 5s steps(1) infinite;
+}
+
+/* La escena es más ancha que el banner: la gaviota recorre más distancia */
+.welcome-art .gull {
+  animation: welcome-gull-flight 48s steps(180) infinite;
+}
+
+@keyframes logo-split-a {
+  0%,
+  30%,
+  100% {
+    transform: translateY(0);
+  }
+
+  40%,
+  90% {
+    transform: translateY(-1px);
+  }
+
+  50%,
+  80% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes logo-split-b {
+  0%,
+  30%,
+  100% {
+    transform: translateY(0);
+  }
+
+  40%,
+  90% {
+    transform: translateY(1px);
+  }
+
+  50%,
+  80% {
+    transform: translateY(2px);
+  }
+}
+
+@keyframes welcome-gull-flight {
+  to {
+    transform: translateX(-180px);
+  }
 }
 
 /* ------------------------------------------------------------ Confirmación */

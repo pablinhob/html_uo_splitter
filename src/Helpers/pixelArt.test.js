@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { DONATION_SPRITE_PALETTE } from '../config';
 import donationScene from './donationScene';
 import headerScene from './headerScene';
+import welcomeScene from './welcomeScene';
 import { bandRects, spriteRects, waveRects } from './pixelArt';
 
 describe('spriteRects', () => {
@@ -79,6 +80,7 @@ describe('waveRects', () => {
 describe.each([
   { name: 'banner de donaciones', scene: donationScene },
   { name: 'cabecera', scene: headerScene },
+  { name: 'bienvenida', scene: welcomeScene },
 ])('escena de pixel art: $name', ({ scene }) => {
   it('cada sprite es rectangular, usa colores de la paleta y cabe en la escena', () => {
     Object.values(scene.sprites).forEach(({ rows, y }) => {

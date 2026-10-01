@@ -1,4 +1,4 @@
-import { bandRects } from '../../../Helpers/pixelArt';
+import { bandRects } from '../../Helpers/pixelArt';
 
 // Cielo por franjas con tramado entre ellas.
 export default function PixelSky({ scene }) {

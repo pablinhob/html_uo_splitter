@@ -169,7 +169,11 @@ export const DONATION_SPRITE_PALETTE = {
   O: '#f77f00', // mejillas y sonrisa del sol
   G: '#5c677d', // aleta del tiburón
   D: '#2b2d42', // gaviota
+  N: '#c68642', // stringer de madera del logotipo
 };
+
+// Ventana de bienvenida: se muestra una vez por sesión del navegador (sessionStorage).
+export const WELCOME_SEEN_STORAGE_KEY = 'uo-splitter.welcome-seen';
 
 export const DONATION_SCENE_COLORS = {
   sky: ['#2f6fdf', '#4b93f2', '#7cbcff', '#bfe3ff'],

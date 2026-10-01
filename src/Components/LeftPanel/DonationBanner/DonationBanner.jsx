@@ -1,8 +1,8 @@
 import { DONATION_URL } from '../../../config';
 import scene from '../../../Helpers/donationScene';
+import PixelSky from '../../Misc/PixelSky';
 import PixelSprite from '../../Misc/PixelSprite';
 import PixelWave from '../../Misc/PixelWave';
-import PixelSky from './PixelSky';
 
 /**
  * Banner de donaciones en pixel art: sol con gafas, gaviota, un surfista que hace
